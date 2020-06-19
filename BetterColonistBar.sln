@@ -5,6 +5,24 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterColonistBar", "BetterColonistBar\BetterColonistBar.csproj", "{B531905F-2DCD-41C7-92E5-CC5020AE1FBA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RimWorldUtility", "..\RimWorldUtility\RimWorldUtility.csproj", "{5D54E978-4AEC-45E5-86EE-4E30216A445E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F8C281A6-BD7F-4160-90EC-6E6F235CAB08}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		Deploy.bat = Deploy.bat
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ModItems", "ModItems", "{F4030FDD-05AF-4997-9662-800FF080072C}"
+	ProjectSection(SolutionItems) = preProject
+		ModItems\LoadFolders.xml = ModItems\LoadFolders.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "About", "About", "{B0EB5953-F295-4755-92A5-29DFE630BB69}"
+	ProjectSection(SolutionItems) = preProject
+		ModItems\About\About.xml = ModItems\About\About.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +33,16 @@ Global
 		{B531905F-2DCD-41C7-92E5-CC5020AE1FBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B531905F-2DCD-41C7-92E5-CC5020AE1FBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B531905F-2DCD-41C7-92E5-CC5020AE1FBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D54E978-4AEC-45E5-86EE-4E30216A445E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D54E978-4AEC-45E5-86EE-4E30216A445E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D54E978-4AEC-45E5-86EE-4E30216A445E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D54E978-4AEC-45E5-86EE-4E30216A445E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B0EB5953-F295-4755-92A5-29DFE630BB69} = {F4030FDD-05AF-4997-9662-800FF080072C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6AECF437-8288-40FE-BC9C-41825107FC43}

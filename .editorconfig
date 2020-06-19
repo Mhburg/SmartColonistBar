@@ -1,0 +1,7 @@
+[*.cs]
+
+# CA1062
+dotnet_code_quality.CA1062.exclude_extension_method_this_parameter = true
+dotnet_code_quality.CA1062.null_check_validation_methods = NotNull|NotNullOrEmpty
+
+file_header_template = Copyright (c) 2019 - 2020 Zizhen Li. All rights reserved.\nLicensed under the LGPL-3.0-only license. See LICENSE.md file in the project root for full license information.
