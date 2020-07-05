@@ -6,10 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RimWorldUtility;
+using Verse;
 
-namespace BetterColonistBar.UI
+namespace BetterColonistBar
 {
-    class LayeredSquare
+    public class PawnMoodCacheTable : CacheTable<Pawn, MoodLevelCache>
     {
+        public PawnMoodCacheTable()
+            : base(new MoodLevelCacheMaker())
+        {
+        }
     }
 }

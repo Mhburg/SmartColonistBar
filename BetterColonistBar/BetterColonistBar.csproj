@@ -24,20 +24,22 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>G:\SteamLibrary\steamapps\common\RimWorld\Mods\BetterColonistBar\Common\Assemblies\</OutputPath>
+    <OutputPath>G:\SteamLibrary\steamapps\common\RimWorld\Mods\BetterColonistBar\v1.1\Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>G:\SteamLibrary\steamapps\common\RimWorld\Mods\BetterColonistBar\Common\Assemblies\.xml</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>G:\SteamLibrary\steamapps\common\RimWorld\Mods\BetterColonistBar\Common\Assemblies\</OutputPath>
+    <OutputPath>G:\SteamLibrary\steamapps\common\RimWorld\Mods\BetterColonistBar\v1.1\Assemblies\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>BetterColonistBar.xml</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -68,14 +70,37 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\UI\LayeredSquare.cs" />
+    <Compile Include="src\HarmonyPatches\ColonistBarColonistDrawer_DrawIcons_Patch.cs" />
+    <Compile Include="src\HarmonyPatches\ColonistBarDrawLocsFinder_CalculateDrawLocs_Patch.cs" />
+    <Compile Include="src\HarmonyPatches\ColonistBarOnGUI_Patch.cs" />
+    <Compile Include="src\HarmonyPatches\ColonistBar_Entries_Patch.cs" />
+    <None Include="src\HarmonyPatches\InspirationHandler_TryStartInspiration_NewTemp_Patch.cs" />
+    <Compile Include="src\HarmonyPatches\TryDistributeHorizontalSlotsBetweenGroups_Patch.cs" />
+    <Compile Include="src\Models\BreakLevelCache.cs" />
+    <Compile Include="src\Models\BreakLevelCacheMaker.cs" />
+    <Compile Include="src\Models\BreakLevelModel.cs" />
+    <Compile Include="src\Models\MoodbarLocation.cs" />
+    <Compile Include="src\Models\MoodLevel.cs" />
+    <Compile Include="src\Models\PawnStatusCache.cs" />
+    <Compile Include="src\Models\PawnStatusCacheMaker.cs" />
+    <Compile Include="src\ModSettings\BetterColonistBarMod.cs" />
+    <Compile Include="src\ModSettings\BetterColonistBarSettings.cs" />
+    <Compile Include="src\ModSettings\MoodColor.cs" />
+    <Compile Include="src\Resources\BCBTexture.cs" />
+    <Compile Include="src\Models\MoodLevelCache.cs" />
+    <Compile Include="src\Models\MoodLevelCacheMaker.cs" />
+    <Compile Include="src\Models\PawnMoodCacheTable.cs" />
+    <Compile Include="src\Services\BCBManager.cs" />
+    <Compile Include="src\Utilities\DrawUtility.cs" />
+    <Compile Include="src\Utilities\PawnUtility.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="src\HarmonyPatches\" />
-    <Folder Include="src\Utilities\" />
+    <Folder Include="src\UI\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".editorconfig" />
     <None Include="packages.config" />
+    <Compile Include="src\HarmonyPatches\ColonistBarColonistDrawer_DrawColonist_Patch.cs" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.3.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.VersionCheckAnalyzer.resources.dll" />
@@ -87,6 +112,16 @@
     <Analyzer Include="..\packages\Microsoft.NetCore.Analyzers.3.0.0\analyzers\dotnet\cs\Microsoft.NetCore.CSharp.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.3.0.0\analyzers\dotnet\cs\Microsoft.NetFramework.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.3.0.0\analyzers\dotnet\cs\Microsoft.NetFramework.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\RimWorldUtility\RimWorldUtility.csproj">
+      <Project>{5d54e978-4aec-45e5-86ee-4e30216a445e}</Project>
+      <Name>RimWorldUtility</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="src\TextFile1.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -100,7 +135,9 @@
     <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.3.0.0\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.3.0.0\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>call "$(SolutionDir)SolutionItems\Deploy.bat" "$(ProjectDir)" "$(OutDir)" $(Configuration)
-xcopy /i /e /d /y "$(SolutionDir)ModItems\About" "$(OutDir)..\..\About"</PostBuildEvent>
+    <PostBuildEvent>call "$(SolutionDir)Deploy.bat" "$(ProjectDir)" "$(OutDir)" $(Configuration)
+xcopy /i /e /d /y "$(SolutionDir)ModItems\About" "$(OutDir)..\..\About"
+echo F|xcopy /d /y "$(SolutionDir)ModItems\LoadFolders.xml" "$(OutDir)..\..\LoadFolders.xml"
+echo F|xcopy /d /y "D:\Modding\RimWorldUtility\bin\Release\NotooShabby.RimWorldUtility.dll" "$(OutDir)..\..\Common\Assemblies\NotooShabby.RimWorldUtility.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

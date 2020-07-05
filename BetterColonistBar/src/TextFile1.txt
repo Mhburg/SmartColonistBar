@@ -1,0 +1,16 @@
+﻿Root level exception in OnGUI(): System.InvalidOperationException: Sequence contains no elements
+  at System.Linq.Enumerable.Max (System.Collections.Generic.IEnumerable`1[T] source) [0x00022] in <351e49e2a5bf4fd6beabb458ce2255f3>:0 
+  at Verse.GenMath.DHondtDistribution (System.Collections.Generic.List`1[T] candidates, System.Func`2[T,TResult] scoreGetter, System.Int32 numToDistribute) [0x0004f] in <0ee2c524c4be441e9b7f8bfcb20aca6f>:0 
+  at RimWorld.ColonistBarDrawLocsFinder.TryDistributeHorizontalSlotsBetweenGroups (System.Int32 maxPerGlobalRow) [0x0002a] in <0ee2c524c4be441e9b7f8bfcb20aca6f>:0 
+  at RimWorld.ColonistBarDrawLocsFinder.FindBestScale (System.Boolean& onlyOneRow, System.Int32& maxPerGlobalRow) [0x0004e] in <0ee2c524c4be441e9b7f8bfcb20aca6f>:0 
+  at (wrapper dynamic-method) RimWorld.ColonistBarDrawLocsFinder.DMD<DMD<CalculateDrawLocs_Patch1>?-244538240::CalculateDrawLocs_Patch1>(RimWorld.ColonistBarDrawLocsFinder,System.Collections.Generic.List`1<UnityEngine.Vector2>,single&)
+  at RimWorld.ColonistBar.CheckRecacheEntries () [0x00340] in <0ee2c524c4be441e9b7f8bfcb20aca6f>:0 
+  at (wrapper dynamic-method) RimWorld.ColonistBar.DMD<DMD<get_Entries_Patch1>?1198558848::get_Entries_Patch1>(RimWorld.ColonistBar)
+  at (wrapper dynamic-method) RimWorld.ColonistBar.DMD<DMD<ColonistBarOnGUI_Patch1>?172055296::ColonistBarOnGUI_Patch1>(RimWorld.ColonistBar)
+  at RimWorld.MapInterface.MapInterfaceOnGUI_BeforeMainTabs () [0x0003c] in <0ee2c524c4be441e9b7f8bfcb20aca6f>:0 
+  at RimWorld.UIRoot_Play.UIRootOnGUI () [0x0001f] in <0ee2c524c4be441e9b7f8bfcb20aca6f>:0 
+  at (wrapper dynamic-method) Verse.Root.DMD<DMD<OnGUI_Patch1>?-376296576::OnGUI_Patch1>(Verse.Root)
+Verse.Log:Error(String, Boolean)
+Verse.Root:DMD<DMD<OnGUI_Patch1>?-376296576::OnGUI_Patch1>(Root)
+
+GetMoodlevel Corpse and crytosleep check
