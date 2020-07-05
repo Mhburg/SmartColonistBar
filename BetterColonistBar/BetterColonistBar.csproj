@@ -80,6 +80,8 @@
     <Compile Include="src\Models\BreakLevelCacheMaker.cs" />
     <Compile Include="src\Models\BreakLevelModel.cs" />
     <Compile Include="src\Models\MoodbarLocation.cs" />
+    <Compile Include="src\Models\MoodCoverRectCache.cs" />
+    <Compile Include="src\Models\MoodCoverRectModel.cs" />
     <Compile Include="src\Models\MoodLevel.cs" />
     <Compile Include="src\Models\PawnStatusCache.cs" />
     <Compile Include="src\Models\PawnStatusCacheMaker.cs" />

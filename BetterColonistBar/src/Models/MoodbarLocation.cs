@@ -13,6 +13,12 @@ namespace BetterColonistBar
 {
     public struct MoodBarLocation : IEquatable<MoodBarLocation>
     {
+        public MoodBarLocation(Rect barRect, Pawn pawn)
+        {
+            BarRect = barRect;
+            Pawn = pawn;
+        }
+
         public Rect BarRect { get; set; }
 
         public Pawn Pawn { get; set; }

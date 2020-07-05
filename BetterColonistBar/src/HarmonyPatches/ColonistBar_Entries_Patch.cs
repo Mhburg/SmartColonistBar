@@ -34,7 +34,7 @@ namespace BetterColonistBar.HarmonyPatches
 
         public static void Postfix(ref List<ColonistBar.Entry> __result)
         {
-            BCBManager.LastBarRectDirty = true;
+            BCBManager.ModColonistBarDirty = true;
             if (_settings.Expanded)
             {
                 return;

@@ -4,9 +4,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using BetterColonistBar.UI;
@@ -30,9 +32,17 @@ namespace BetterColonistBar.HarmonyPatches
 
         private static readonly Color _thresholdColor = new Color(1f, 1f, 1f, 0.9f);
 
+        private static readonly int _iteration = 20_000;
+        private static Stopwatch _stopwatch = new Stopwatch();
+        private static int _counter = 0;
+        private static double _time = 0;
+        private static readonly Dictionary<Pawn, Texture2D> _texture2Ds = new Dictionary<Pawn, Texture2D>(BCBManager.PawnComparer.Instance);
+
         static ColonistBarColonistDrawer_DrawColonist_Patch()
         {
             BCBManager.Harmony.Patch(_original, transpiler: new HarmonyMethod(_transpiler));
+            _stopwatch.Start();
+            _stopwatch.Stop();
         }
 
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -62,7 +72,7 @@ namespace BetterColonistBar.HarmonyPatches
 
         private static void DrawAddOn(Color color, Rect rect, Pawn pawn)
         {
-            if (BCBManager.LastBarRectDirty)
+            if (BCBManager.ModColonistBarDirty)
             {
                 BCBManager.LastBarRect = Rect.zero;
                 if (rect.y > BCBManager.LastBarRect.y)
@@ -83,7 +93,7 @@ namespace BetterColonistBar.HarmonyPatches
 
         private static void DrawMoodBar(Color color, Rect portraitRect, Pawn pawn, BreakLevelModel breakLevelModel)
         {
-            List<float> thresholds = new List<float>() { breakLevelModel.Minor, breakLevelModel.Major, breakLevelModel.Extreme };
+            float[] thresholds = { breakLevelModel.Minor, breakLevelModel.Major, breakLevelModel.Extreme };
 
             GUI.color = color;
 
@@ -96,10 +106,26 @@ namespace BetterColonistBar.HarmonyPatches
             GUI.DrawTexture(moodBarRect, BaseContent.GreyTex);
             GUI.DrawTexture(coveredRect, breakLevelModel.MoodLevel.GetTexture());
             GUI.color = _thresholdColor;
-            foreach (float t in thresholds)
-            {
-                DrawBarThreshold(moodBarRect, t);
-            }
+
+            //_stopwatch.Restart();
+
+            //foreach (float t in thresholds)
+            //{
+            //    DrawBarThreshold(moodBarRect, t);
+            //}
+
+            DrawBarThresholdTest(moodBarRect, thresholds, pawn);
+            //_stopwatch.Stop();
+            //_time += _stopwatch.Elapsed.TotalMilliseconds;
+            //_counter++;
+
+            //if (_counter == _iteration)
+            //{
+            //    Log.Message($"Time: {_time / 1000 : 0000.0000}ms");
+            //    _counter = 0;
+            //    _time = 0;
+            //}
+
             GUI.color = Color.white;
 
             Rect markerRect = new Rect(moodBarRect.x, Mathf.Lerp(moodBarRect.yMax, moodBarRect.y, BCBManager.GetBreakLevelFor(pawn).CurInstanLevel), moodBarRect.width, 1f);
@@ -107,21 +133,49 @@ namespace BetterColonistBar.HarmonyPatches
             GUI.DrawTexture(markerRect, BaseContent.WhiteTex);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Rect GetMoodBarRect(Rect portraitRect, Pawn pawn)
         {
+            if (!BCBManager.ModColonistBarDirty && BCBManager.BarLocations.TryGetValue(pawn, out MoodBarLocation barRect))
+                return barRect.BarRect;
+
             portraitRect = portraitRect.RightPart(_settings.MoodBarWidth);
             portraitRect.x += portraitRect.width;
+            BCBManager.BarLocations[pawn] = new MoodBarLocation(portraitRect, pawn);
             return portraitRect;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void DrawBarThreshold(Rect barRect, float threshPct)
         {
             float y = Mathf.Lerp(barRect.yMax, barRect.y, threshPct);
             Rect rect = new Rect(barRect.x, y, barRect.width / 2, GenUI.GapTiny / 2);
 
-            Texture2D image = BaseContent.BlackTex;
+            GUI.DrawTexture(rect, BaseContent.BlackTex);
+        }
 
-            GUI.DrawTexture(rect, image);
+        private static void DrawBarThresholdTest(Rect barRect, float[] pcts, Pawn pawn)
+        {
+            if (!_texture2Ds.TryGetValue(pawn, out Texture2D value))
+            {
+                Texture2D barTexture2D = new Texture2D(Mathf.RoundToInt(barRect.width), Mathf.RoundToInt(barRect.height));
+                const float height = GenUI.GapTiny / 2;
+                foreach (float pct in pcts)
+                {
+                    int start = Mathf.RoundToInt(barTexture2D.height * pct);
+                    for (int x = 0; x < barTexture2D.width / 2; x++)
+                    {
+                        for (int y = start; y < height + start; y++)
+                        {
+                            barTexture2D.SetPixel(x, y, Color.black);
+                        }
+                    }
+                }
+                barTexture2D.Apply();
+                _texture2Ds[pawn] = barTexture2D;
+            }
+
+            GUI.DrawTexture(barRect, value);
         }
     }
 }

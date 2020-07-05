@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
 using RimWorld;
@@ -25,11 +27,13 @@ namespace BetterColonistBar
 
         private static readonly BetterColonistBarSettings _settings = BetterColonistBarMod.ModSettings;
 
+        public static Dictionary<Pawn, MoodBarLocation> BarLocations = new Dictionary<Pawn, MoodBarLocation>(PawnComparer.Instance);
+
         public static Harmony Harmony { get; } = new Harmony(BetterColonistBarMod.Id);
 
         public static Rect LastBarRect { get; set; } = Rect.zero;
 
-        public static bool LastBarRectDirty { get; set; } = true;
+        public static bool ModColonistBarDirty { get; set; } = true;
 
         public static List<ColonistBar.Entry> EntriesCache { get; set; } = new List<ColonistBar.Entry>();
 
@@ -37,7 +41,7 @@ namespace BetterColonistBar
 
         public static PawnStatusCache GetStatusFor(Pawn pawn) => _statusCaches[pawn];
 
-        public static bool ModColonistBarDirty { get; set; }
+        public static ReaderWriterLockSlim UpdateLock { get; set; } = new ReaderWriterLockSlim();
 
         public static void Reset()
         {
@@ -53,6 +57,31 @@ namespace BetterColonistBar
                     current | (_breakLevelCaches[entry.pawn].Dirty | _statusCaches[entry.pawn].Dirty));
 
             return dirty;
+        }
+
+        public class PawnComparer : IEqualityComparer<Pawn>
+        {
+            public static PawnComparer Instance = new PawnComparer();
+
+            #region Implementation of IEqualityComparer<in Pawn>
+
+            public bool Equals(Pawn x, Pawn y)
+            {
+                if (ReferenceEquals(x, y))
+                    return true;
+
+                if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
+                    return false;
+
+                return x.thingIDNumber == y.thingIDNumber;
+            }
+
+            public int GetHashCode(Pawn obj)
+            {
+                return obj.thingIDNumber;
+            }
+
+            #endregion
         }
     }
 }

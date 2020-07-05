@@ -48,7 +48,7 @@ namespace BetterColonistBar.HarmonyPatches
             if (Event.current.type == EventType.Layout)
                 return;
 
-            BCBManager.LastBarRectDirty = false;
+            BCBManager.ModColonistBarDirty = false;
             if (DrawUtility.ButtonInvertImage(GetRect(), BCBTexture.Expand, _color))
             {
                 if (Event.current.button == 0)
@@ -64,7 +64,7 @@ namespace BetterColonistBar.HarmonyPatches
             if (Event.current.type != EventType.Repaint)
                 return;
 
-            if (BCBManager.ModColonistBarDirty || BCBManager.UpdateColonistBar())
+            if (BCBManager.UpdateColonistBar())
             {
                 Find.ColonistBar.MarkColonistsDirty();
             }
