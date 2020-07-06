@@ -34,7 +34,26 @@ namespace BetterColonistBar.UI
             }
         }
 
-        public static float PaddingTiny = 2f;
+        public static Color GetColor(this MoodLevel moodLevel)
+        {
+            switch (moodLevel)
+            {
+                case MoodLevel.Satisfied:
+                    return MoodColor.Satisfied;
+
+                case MoodLevel.Minor:
+                    return MoodColor.Minor;
+
+                case MoodLevel.Major:
+                    return MoodColor.Major;
+
+                case MoodLevel.Extreme:
+                    return MoodColor.Extreme;
+
+                default:
+                    return MoodColor.Satisfied;
+            }
+        }
 
         public static bool ButtonInvertImage(Rect rect, Texture2D image, Color baseColor)
         {

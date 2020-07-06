@@ -7,12 +7,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RimWorld;
+using RimWorldUtility;
 using Verse;
 
 namespace BetterColonistBar
 {
     public class BreakLevelModel
     {
+        private readonly int _updateTick;
+
+        public BreakLevelModel(Pawn pawn)
+        {
+            ValidateArg.NotNull(pawn, nameof(pawn));
+
+            this.Pawn = pawn;
+            _updateTick = pawn.thingIDNumber % BetterColonistBarMod.ModSettings.MoodUpdateInterval;
+        }
+
         public Pawn Pawn { get; set; }
 
         public float Minor { get; set; }
@@ -24,5 +35,11 @@ namespace BetterColonistBar
         public float CurInstanLevel { get; set; }
 
         public MoodLevel MoodLevel { get; set; }
+
+        public bool UpdateBarTexture =>
+            Find.TickManager.TicksGame % BetterColonistBarMod.ModSettings.MoodUpdateInterval == _updateTick;
+
+        public bool BuildingTexture { get; set; }
+
     }
 }

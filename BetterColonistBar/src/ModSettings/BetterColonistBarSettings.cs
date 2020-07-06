@@ -31,5 +31,7 @@ namespace BetterColonistBar
         public bool Expanded = false;
 
         public int StatusUpdateInterval = _updateIntervalBase;
+
+        public TimeSpan AutoHideButtonTime = new TimeSpan(0,0,3);
     }
 }

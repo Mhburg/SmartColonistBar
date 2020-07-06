@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using BetterColonistBar.UI;
 using HarmonyLib;
@@ -32,17 +34,16 @@ namespace BetterColonistBar.HarmonyPatches
 
         private static readonly Color _thresholdColor = new Color(1f, 1f, 1f, 0.9f);
 
-        private static readonly int _iteration = 20_000;
-        private static Stopwatch _stopwatch = new Stopwatch();
-        private static int _counter = 0;
-        private static double _time = 0;
+        private static readonly List<Task<(Texture2D, Pawn)>> _tasks = new List<Task<(Texture2D, Pawn)>>();
+
+        private static readonly ConcurrentDictionary<Pawn, Texture2D> _barTexture2Ds =
+            new ConcurrentDictionary<Pawn, Texture2D>(BCBManager.PawnComparer.Instance);
+
         private static readonly Dictionary<Pawn, Texture2D> _texture2Ds = new Dictionary<Pawn, Texture2D>(BCBManager.PawnComparer.Instance);
 
         static ColonistBarColonistDrawer_DrawColonist_Patch()
         {
             BCBManager.Harmony.Patch(_original, transpiler: new HarmonyMethod(_transpiler));
-            _stopwatch.Start();
-            _stopwatch.Stop();
         }
 
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -88,7 +89,11 @@ namespace BetterColonistBar.HarmonyPatches
             if (breakLevelModel.MoodLevel == MoodLevel.Undefined)
                 return;
 
-            DrawMoodBar(color, rect, pawn, breakLevelModel);
+            GUI.color = color;
+            DrawMoodBarFast(rect, pawn, breakLevelModel);
+            GUI.color = Color.white;
+
+            //DrawMoodBar(color, rect, pawn, breakLevelModel);
         }
 
         private static void DrawMoodBar(Color color, Rect portraitRect, Pawn pawn, BreakLevelModel breakLevelModel)
@@ -107,24 +112,7 @@ namespace BetterColonistBar.HarmonyPatches
             GUI.DrawTexture(coveredRect, breakLevelModel.MoodLevel.GetTexture());
             GUI.color = _thresholdColor;
 
-            //_stopwatch.Restart();
-
-            //foreach (float t in thresholds)
-            //{
-            //    DrawBarThreshold(moodBarRect, t);
-            //}
-
             DrawBarThresholdTest(moodBarRect, thresholds, pawn);
-            //_stopwatch.Stop();
-            //_time += _stopwatch.Elapsed.TotalMilliseconds;
-            //_counter++;
-
-            //if (_counter == _iteration)
-            //{
-            //    Log.Message($"Time: {_time / 1000 : 0000.0000}ms");
-            //    _counter = 0;
-            //    _time = 0;
-            //}
 
             GUI.color = Color.white;
 
@@ -176,6 +164,89 @@ namespace BetterColonistBar.HarmonyPatches
             }
 
             GUI.DrawTexture(barRect, value);
+        }
+
+
+        private static void DrawMoodBarFast(Rect portraitRect, Pawn pawn, BreakLevelModel breakLevelModel)
+        {
+            float[] thresholds = { breakLevelModel.Minor, breakLevelModel.Major, breakLevelModel.Extreme };
+            Rect moodBaRect = GetMoodBarRect(portraitRect, pawn);
+
+            if (!_barTexture2Ds.TryGetValue(pawn, out Texture2D texture))
+            {
+                Texture2D newTexture = new Texture2D(Mathf.RoundToInt(moodBaRect.width), Mathf.RoundToInt(moodBaRect.height));
+                texture = _barTexture2Ds[pawn] = BuildTexture(newTexture, moodBaRect, pawn, breakLevelModel, thresholds).texture;
+                texture.Apply();
+            }
+
+            foreach (Task<(Texture2D texture, Pawn pawn)> t in _tasks.ToList())
+            {
+                if (t.IsCompleted)
+                {
+                    (Texture2D texture, Pawn pawn) result = t.Result;
+                    Texture2D newTexture2D = result.texture;
+                    newTexture2D.Apply();
+                    _barTexture2Ds[result.pawn] = newTexture2D;
+                    BCBManager.GetBreakLevelFor(result.pawn).BuildingTexture = false;
+
+                    if (pawn == result.pawn)
+                        texture = newTexture2D;
+
+                    _tasks.Remove(t);
+                }
+            }
+
+            if (breakLevelModel.UpdateBarTexture && !breakLevelModel.BuildingTexture)
+            {
+                breakLevelModel.BuildingTexture = true;
+                Texture2D newTexture = new Texture2D(Mathf.RoundToInt(moodBaRect.width), Mathf.RoundToInt(moodBaRect.height));
+                _tasks.Add(Task.Run(() => BuildTexture(newTexture, moodBaRect, pawn, breakLevelModel, thresholds)));
+            }
+
+            GUI.DrawTexture(moodBaRect, texture);
+        }
+
+        private static (Texture2D texture, Pawn pawn) BuildTexture(Texture2D newTexture, Rect moodBaRect, Pawn pawn, BreakLevelModel breakLevelModel, float[] thresholds)
+        {
+            int moodHeight = Mathf.RoundToInt(moodBaRect.height * pawn.mindState.mentalBreaker.CurMood);
+            moodHeight = moodHeight < 2 ? 2 : moodHeight;
+
+            Color moodColor = breakLevelModel.MoodLevel.GetColor();
+            for (int x = 0; x < newTexture.width; x++)
+            {
+                for (int y = 0; y < moodHeight; y++)
+                {
+                    newTexture.SetPixel(x, y, moodColor);
+                }
+
+                for (int y = moodHeight; y < moodBaRect.height + 1; y++)
+                {
+                    newTexture.SetPixel(x, y, Color.grey);
+                }
+            }
+
+            int markerHeight = Mathf.RoundToInt(GenUI.GapTiny / 2);
+            foreach (float pct in thresholds)
+            {
+                int start = Mathf.RoundToInt(newTexture.height * pct);
+                for (int x = 0; x < newTexture.width / 2; x++)
+                {
+                    for (int y = start; y < markerHeight + start; y++)
+                    {
+                        newTexture.SetPixel(x, y, Color.black);
+                    }
+                }
+            }
+
+            int curMoodY = Mathf.RoundToInt(BCBManager.GetBreakLevelFor(pawn).CurInstanLevel * newTexture.height);
+
+            for (int x = 0; x < newTexture.width; x++)
+            {
+                for (int y = curMoodY; y < curMoodY + 2; y++)
+                    newTexture.SetPixel(x, y, Color.white);
+            }
+
+            return (newTexture, pawn);
         }
     }
 }

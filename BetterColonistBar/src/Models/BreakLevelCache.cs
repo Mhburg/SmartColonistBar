@@ -21,12 +21,11 @@ namespace BetterColonistBar
         private bool _lastMood;
 
         public BreakLevelCache(Pawn pawn)
-            : base(new BreakLevelModel(), () => Find.TickManager.TicksGame, _settings.MoodUpdateInterval, null, Find.TickManager.TicksGame)
+            : base(new BreakLevelModel(pawn), () => Find.TickManager.TicksGame, _settings.MoodUpdateInterval, null, Find.TickManager.TicksGame)
         {
             ValidateArg.NotNull(pawn, nameof(pawn));
 
             this.Update = this.UpdateCache;
-            _backingField.Pawn = pawn;
             _backingField = this.UpdateCache(pawn);
         }
 

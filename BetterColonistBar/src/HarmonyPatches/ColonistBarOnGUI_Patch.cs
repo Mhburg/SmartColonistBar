@@ -38,6 +38,10 @@ namespace BetterColonistBar.HarmonyPatches
 
         private static readonly BetterColonistBarSettings _settings = BetterColonistBarMod.ModSettings;
 
+        private static DateTime _lastTimeShow;
+
+        private static bool _firstDraw = true;
+
         static ColonistBarOnGUI_Patch()
         {
             BCBManager.Harmony.Patch(_original, postfix: new HarmonyMethod(_postfix));
@@ -49,15 +53,37 @@ namespace BetterColonistBar.HarmonyPatches
                 return;
 
             BCBManager.ModColonistBarDirty = false;
-            if (DrawUtility.ButtonInvertImage(GetRect(), BCBTexture.Expand, _color))
-            {
-                if (Event.current.button == 0)
-                {
-                    _settings.Expanded ^= true;
-                    BCBManager.LastBarRect = Rect.zero;
-                    Find.ColonistBar.MarkColonistsDirty();
 
-                    return;
+            bool showButton = false;
+            Rect buttonRect = GetRect();
+
+            if (_firstDraw)
+            {
+                _firstDraw = false;
+                _lastTimeShow = DateTime.UtcNow;
+            }
+            else if (DateTime.UtcNow - _lastTimeShow < _settings.AutoHideButtonTime)
+            {
+                showButton = true;
+            }
+            else if (MouseIsOver(buttonRect))
+            {
+                showButton = true;
+                _lastTimeShow = DateTime.UtcNow;
+            }
+
+            if (showButton)
+            {
+                if (DrawUtility.ButtonInvertImage(buttonRect, BCBTexture.Expand, _color))
+                {
+                    if (Event.current.button == 0)
+                    {
+                        _settings.Expanded ^= true;
+                        BCBManager.LastBarRect = Rect.zero;
+                        Find.ColonistBar.MarkColonistsDirty();
+
+                        return;
+                    }
                 }
             }
 
@@ -97,6 +123,17 @@ namespace BetterColonistBar.HarmonyPatches
                 Rect rect = BCBManager.LastBarRect;
                 return new Rect(rect.xMax + size.x + gap, rect.y, -size.x, size.y).CenteredOnYIn(BCBManager.LastBarRect);
             }
+        }
+
+        private static bool MouseIsOver(Rect rect)
+        {
+            if (rect.width < 0)
+            {
+                rect.width = Mathf.Abs(rect.width);
+                rect.x -= rect.width;
+            }
+
+            return Mouse.IsOver(rect);
         }
     }
 }

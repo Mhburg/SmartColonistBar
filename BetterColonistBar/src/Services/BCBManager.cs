@@ -43,20 +43,21 @@ namespace BetterColonistBar
 
         public static ReaderWriterLockSlim UpdateLock { get; set; } = new ReaderWriterLockSlim();
 
+        public static int ProcessorCount { get; } = Environment.ProcessorCount;
+
         public static void Reset()
         {
             _statusCaches.Clear();
             _breakLevelCaches.Clear();
+            Log.Message($"Processor count: {Environment.ProcessorCount}");
         }
 
         public static bool UpdateColonistBar()
         {
-            bool dirty = EntriesCache.AsParallel().Aggregate(
+            return EntriesCache.AsParallel().Aggregate(
                 false
                 , (current, entry) =>
                     current | (_breakLevelCaches[entry.pawn].Dirty | _statusCaches[entry.pawn].Dirty));
-
-            return dirty;
         }
 
         public class PawnComparer : IEqualityComparer<Pawn>
