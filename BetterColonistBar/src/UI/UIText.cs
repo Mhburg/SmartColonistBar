@@ -35,6 +35,8 @@ namespace BetterColonistBar.UI
 
         public const string TimeToAutoHide = "BetterColonistBar_TimeToAutoHide";
 
+        public const string SortPawnByBleeding = "BetterColonistBar_SortPawnByBleeding";
+
         public const string BackgroundColor = "BetterColonistBar_BackgroundColor";
 
         public const string ThrehsoldMarker = "BetterColonistBar_ThresholdMarker";

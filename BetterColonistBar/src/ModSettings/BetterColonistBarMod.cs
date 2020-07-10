@@ -53,6 +53,10 @@ namespace BetterColonistBar
             listing.CheckboxLabeled(UIText.ShowDraftedPawn.TranslateSimple(), ref ModSettings.ShowDraftedPawn);
             listing.CheckboxLabeled(UIText.AutoHide.TranslateSimple(), ref ModSettings.AutoHide);
 
+            listing.GapLine();
+
+            listing.CheckboxLabeled(UIText.SortPawnByBleeding.TranslateSimple(), ref ModSettings.SortBleedingPawn);
+
             const float lineHeight = GenUI.ListSpacing * 2;
 
             listing.Gap();

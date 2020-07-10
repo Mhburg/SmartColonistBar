@@ -27,9 +27,17 @@ namespace BetterColonistBar.HarmonyPatches
 
         private static readonly BetterColonistBarSettings _settings = BetterColonistBarMod.ModSettings;
 
+        private static Stopwatch _stopwatch = new Stopwatch();
+
+        private static double _time;
+
+        private static int _counter;
+
         static ColonistBar_Entries_Patch()
         {
-            BCBManager.Harmony.Patch(_original, postfix: new HarmonyMethod(_postfix));
+            //BCBManager.Harmony.Patch(_original, postfix: new HarmonyMethod(_postfix));
+            _stopwatch.Start();
+            _stopwatch.Stop();
         }
 
         public static void Postfix(ref List<ColonistBar.Entry> __result)
@@ -40,8 +48,20 @@ namespace BetterColonistBar.HarmonyPatches
                 return;
             }
 
+            //_stopwatch.Restart();
             StackTrace stackTrace = new StackTrace(2);
             string methodName = stackTrace.GetFrame(0).GetMethod().Name;
+            //_stopwatch.Stop();
+            //_counter++;
+            //_time += _stopwatch.Elapsed.TotalMilliseconds;
+
+            //if (_counter == 1000)
+            //{
+            //    Log.Message($"Total time: {_time : 0000.0000} - Average {_time / 1000 : 0000.0000}ms");
+            //    _counter = 0;
+            //    _time = 0;
+            //}
+
             if (methodName != _interceptMethodName)
                 return;
 

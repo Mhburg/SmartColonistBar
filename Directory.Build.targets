@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Target Name="CompressFolder" AfterTargets="Build">
+        <!-- Compress mod folder -->
+        <ZipDirectory
+            Condition="'$(Configuration)'=='Release'"
+            SourceDirectory="G:\SteamLibrary\steamapps\common\RimWorld\Mods\BetterColonistBar"
+            DestinationFile="G:\SteamLibrary\steamapps\common\RimWorld\Mods\BetterColonistBar.zip"
+            Overwrite="true"
+        />
+    </Target>
+
+    <Target Name="SwitchRuntime" AfterTargets="Build">
+
+        <Copy
+            Condition="'$(Configuration)'=='Release'"
+            SourceFiles="D:\Modding\RimWorld-Backup\RimWorld\MonoBleedingEdge\EmbedRuntime\mono-2.0-bdwgc.dll"
+            DestinationFiles="G:\SteamLibrary\steamapps\common\RimWorld\MonoBleedingEdge\EmbedRuntime\mono-2.0-bdwgc.dll"
+            SkipUnchangedFiles="true"/>
+
+        <Copy
+            Condition="'$(Configuration)'=='Debug'"
+            SourceFiles="D:\Modding\dnSpy-Unity-mono\builds\Release\unity-2019.2.0\win64\mono-2.0-bdwgc.dll"
+            DestinationFiles="G:\SteamLibrary\steamapps\common\RimWorld\MonoBleedingEdge\EmbedRuntime\mono-2.0-bdwgc.dll"
+            SkipUnchangedFiles="true"/>
+
+    </Target>
+</Project>

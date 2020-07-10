@@ -17,7 +17,7 @@ namespace BetterColonistBar.HarmonyPatches
     public class TryDistributeHorizontalSlotsBetweenGroups_Patch
     {
         private static readonly MethodInfo _original =
-            typeof(ColonistBarDrawLocsFinder)
+            typeof(RimWorld.ColonistBarDrawLocsFinder)
                 .GetMethod("TryDistributeHorizontalSlotsBetweenGroups", BindingFlags.Instance | BindingFlags.NonPublic);
 
         private static readonly MethodInfo _prefix =
@@ -25,7 +25,7 @@ namespace BetterColonistBar.HarmonyPatches
                 .GetMethod(nameof(Prefix), BindingFlags.Public | BindingFlags.Static);
 
         private static readonly FieldInfo _horGroup =
-            typeof(ColonistBarDrawLocsFinder)
+            typeof(RimWorld.ColonistBarDrawLocsFinder)
                 .GetField("horizontalSlotsPerGroup", BindingFlags.NonPublic | BindingFlags.Instance);
 
         static TryDistributeHorizontalSlotsBetweenGroups_Patch()
@@ -33,7 +33,7 @@ namespace BetterColonistBar.HarmonyPatches
             BCBManager.Harmony.Patch(_original, new HarmonyMethod(_prefix));
         }
 
-        public static bool Prefix(ref bool __result, ColonistBarDrawLocsFinder __instance)
+        public static bool Prefix(ref bool __result, RimWorld.ColonistBarDrawLocsFinder __instance)
         {
             __result = true;
             ((List<int>)_horGroup.GetValue(__instance)).Clear();
