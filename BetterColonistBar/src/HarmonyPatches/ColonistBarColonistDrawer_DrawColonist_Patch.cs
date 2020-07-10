@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using BetterColonistBar.UI;
 using HarmonyLib;
 using RimWorld;
+using RimWorldUtility;
 using UnityEngine;
 using Verse;
 
@@ -69,6 +70,48 @@ namespace BetterColonistBar.HarmonyPatches
             }
 
             return list;
+        }
+
+        public static Texture2D BuildTexture(Texture2D newTexture, float currMoodHeight, Color moodColor, int moodLevel, float[] thresholds)
+        {
+            ValidateArg.NotNull(thresholds, nameof(thresholds));
+            ValidateArg.NotNull(newTexture, nameof(newTexture));
+
+            currMoodHeight = currMoodHeight < 2 ? 2 : currMoodHeight;
+            int moodHeight = Mathf.RoundToInt(currMoodHeight);
+
+            for (int x = 0; x < newTexture.width; x++)
+            {
+                for (int y = 0; y < moodHeight; y++)
+                {
+                    newTexture.SetPixel(x, y, moodColor);
+                }
+
+                for (int y = moodHeight; y < newTexture.height; y++)
+                {
+                    newTexture.SetPixel(x, y, _settings.BgColor);
+                }
+            }
+
+            foreach (float pct in thresholds)
+            {
+                int start = Mathf.RoundToInt(newTexture.height * pct);
+                for (int x = 0; x < newTexture.width / 2; x++)
+                {
+                    for (int y = start; y < _settings.ThresholdMarkerThickness + start; y++)
+                    {
+                        newTexture.SetPixel(x, y, _settings.ThresholdMarker);
+                    }
+                }
+            }
+
+            for (int x = 0; x < newTexture.width; x++)
+            {
+                for (int y = moodLevel; y < moodLevel + _settings.CurrMoodLevelThickness; y++)
+                    newTexture.SetPixel(x, y, _settings.CurrMoodLevel);
+            }
+
+            return newTexture;
         }
 
         private static void DrawAddOn(Color color, Rect rect, Pawn pawn)
@@ -196,7 +239,7 @@ namespace BetterColonistBar.HarmonyPatches
                 }
             }
 
-            if (breakLevelModel.UpdateBarTexture && !breakLevelModel.BuildingTexture)
+            if (_settings.UISettingsChanged || (breakLevelModel.UpdateBarTexture && !breakLevelModel.BuildingTexture))
             {
                 breakLevelModel.BuildingTexture = true;
                 Texture2D newTexture = new Texture2D(Mathf.RoundToInt(moodBaRect.width), Mathf.RoundToInt(moodBaRect.height));
@@ -209,44 +252,13 @@ namespace BetterColonistBar.HarmonyPatches
         private static (Texture2D texture, Pawn pawn) BuildTexture(Texture2D newTexture, Rect moodBaRect, Pawn pawn, BreakLevelModel breakLevelModel, float[] thresholds)
         {
             int moodHeight = Mathf.RoundToInt(moodBaRect.height * pawn.mindState.mentalBreaker.CurMood);
-            moodHeight = moodHeight < 2 ? 2 : moodHeight;
-
-            Color moodColor = breakLevelModel.MoodLevel.GetColor();
-            for (int x = 0; x < newTexture.width; x++)
-            {
-                for (int y = 0; y < moodHeight; y++)
-                {
-                    newTexture.SetPixel(x, y, moodColor);
-                }
-
-                for (int y = moodHeight; y < moodBaRect.height + 1; y++)
-                {
-                    newTexture.SetPixel(x, y, Color.grey);
-                }
-            }
-
-            int markerHeight = Mathf.RoundToInt(GenUI.GapTiny / 2);
-            foreach (float pct in thresholds)
-            {
-                int start = Mathf.RoundToInt(newTexture.height * pct);
-                for (int x = 0; x < newTexture.width / 2; x++)
-                {
-                    for (int y = start; y < markerHeight + start; y++)
-                    {
-                        newTexture.SetPixel(x, y, Color.black);
-                    }
-                }
-            }
-
             int curMoodY = Mathf.RoundToInt(BCBManager.GetBreakLevelFor(pawn).CurInstanLevel * newTexture.height);
+            Color moodColor = breakLevelModel.MoodLevel.GetColor();
 
-            for (int x = 0; x < newTexture.width; x++)
-            {
-                for (int y = curMoodY; y < curMoodY + 2; y++)
-                    newTexture.SetPixel(x, y, Color.white);
-            }
+            BuildTexture(newTexture, moodHeight, moodColor, curMoodY, thresholds);
 
             return (newTexture, pawn);
         }
+
     }
 }

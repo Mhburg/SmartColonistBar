@@ -16,7 +16,10 @@ namespace BetterColonistBar.UI
     public static class BCBTexture
     {
         public static Texture2D Expand = ContentFinder<Texture2D>.Get("Expand");
+
         public static Texture2D RightTriangle = ContentFinder<Texture2D>.Get("RightTriangle");
+
+        public static Texture2D PalletMarker = ContentFinder<Texture2D>.Get("PalletMarker");
 
         public static Texture2D Medicine = (Texture2D)(ThingDefOf.MedicineIndustrial.graphic as Graphic_StackCount)
             .SubGraphicForStackCount(1, ThingDefOf.MedicineIndustrial).MatNorth.mainTexture;
@@ -28,21 +31,5 @@ namespace BetterColonistBar.UI
         public static Texture2D Major = SolidColorMaterials.NewSolidColorTexture(MoodColor.Major);
 
         public static Texture2D Extreme = SolidColorMaterials.NewSolidColorTexture(MoodColor.Extreme);
-
-        public static Texture2D _colorPallet = new Texture2D(255, 255);
-
-        static BCBTexture()
-        {
-            _colorPallet.name = "ColorPicker";
-
-            for (int y = 0; y < _colorPallet.height; y++)
-            {
-                for (int x = 0; x < _colorPallet.width; x++)
-                {
-                    _colorPallet.SetPixel(x, y, new Color(x / 255f, y / 255f, y / 255f, 1));
-                }
-            }
-            _colorPallet.Apply();
-        }
     }
 }

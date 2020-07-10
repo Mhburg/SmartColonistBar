@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+    <BetterColonistBar_R>R</BetterColonistBar_R>
+    <BetterColonistBar_G>G</BetterColonistBar_G>
+    <BetterColonistBar_B>B</BetterColonistBar_B>
+    <BetterColonistBar_A>A</BetterColonistBar_A>
+
+    <BetterColonistBar_ShowInspiredPawn>Show inspired pawns</BetterColonistBar_ShowInspiredPawn>
+    <BetterColonistBar_ShowGuestPawn>Show guest pawns</BetterColonistBar_ShowGuestPawn>
+    <BetterColonistBar_ShowSickPawn>Show sick pawns</BetterColonistBar_ShowSickPawn>
+    <BetterColonistBar_ShowDraftedPawn>Show drafted pawns</BetterColonistBar_ShowDraftedPawn>
+
+    <BetterColonistBar_MoodUpdateInterval>Mood update interval</BetterColonistBar_MoodUpdateInterval>
+    <BetterColonistBar_StatusUpdateInterval>Status update interval</BetterColonistBar_StatusUpdateInterval>
+    <BetterColonistBar_TimeToAutoHide>Time to auto-hide</BetterColonistBar_TimeToAutoHide>
+
+    <BetterColonistBar_BackgroundColor>Background color</BetterColonistBar_BackgroundColor>
+    <BetterColonistBar_ThresholdMarker>Threshold marker</BetterColonistBar_ThresholdMarker>
+    <BetterColonistBar_Configure>Configure</BetterColonistBar_Configure>
+    <BetterColonistBar_CurrMoodLevel>Current mood level</BetterColonistBar_CurrMoodLevel>
+
+    <BetterColonistBar_ThresholdMarkerThickness>Threshold marker thickness</BetterColonistBar_ThresholdMarkerThickness>
+    <BetterColonistBar_CurrMoodLevelThickness>Current mood level thickness</BetterColonistBar_CurrMoodLevelThickness>
+    <BetterColonistBar_AutoHide>Auto hide expand button</BetterColonistBar_AutoHide>
+</LanguageData>

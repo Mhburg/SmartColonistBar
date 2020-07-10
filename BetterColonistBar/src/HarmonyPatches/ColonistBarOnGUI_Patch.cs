@@ -32,10 +32,6 @@ namespace BetterColonistBar.HarmonyPatches
 
         private static readonly Vector2 _minSize = new Vector2(20, 20);
 
-        private static readonly PropertyInfo _maxBarWidth =
-            typeof(ColonistBarDrawLocsFinder).GetProperty(
-                "MaxColonistBarWidth", BindingFlags.NonPublic | BindingFlags.Static);
-
         private static readonly BetterColonistBarSettings _settings = BetterColonistBarMod.ModSettings;
 
         private static DateTime _lastTimeShow;
@@ -52,24 +48,34 @@ namespace BetterColonistBar.HarmonyPatches
             if (Event.current.type == EventType.Layout)
                 return;
 
+            if (Event.current.type == EventType.Repaint)
+                _settings.UISettingsChanged = false;
+
             BCBManager.ModColonistBarDirty = false;
 
-            bool showButton = false;
             Rect buttonRect = GetRect();
 
-            if (_firstDraw)
+            bool showButton = !_settings.AutoHide;
+            if (!showButton)
             {
-                _firstDraw = false;
-                _lastTimeShow = DateTime.UtcNow;
-            }
-            else if (DateTime.UtcNow - _lastTimeShow < _settings.AutoHideButtonTime)
-            {
-                showButton = true;
-            }
-            else if (MouseIsOver(buttonRect))
-            {
-                showButton = true;
-                _lastTimeShow = DateTime.UtcNow;
+                bool timetoShowButton = false;
+
+                if (_firstDraw)
+                {
+                    _firstDraw = false;
+                    _lastTimeShow = DateTime.UtcNow;
+                }
+                else if (DateTime.UtcNow - _lastTimeShow < _settings.AutoHideButtonTime)
+                {
+                    timetoShowButton = true;
+                }
+                else if (MouseIsOver(buttonRect))
+                {
+                    timetoShowButton = true;
+                    _lastTimeShow = DateTime.UtcNow;
+                }
+
+                showButton |= timetoShowButton;
             }
 
             if (showButton)
@@ -83,6 +89,9 @@ namespace BetterColonistBar.HarmonyPatches
                         Find.ColonistBar.MarkColonistsDirty();
 
                         return;
+                    }
+                    else if (Event.current.button == 1)
+                    {
                     }
                 }
             }
@@ -116,7 +125,6 @@ namespace BetterColonistBar.HarmonyPatches
                     rect = BCBManager.LastBarRect;
                     return new Rect(rect.xMax + gap, rect.y, size.x, size.x).CenteredOnYIn(BCBManager.LastBarRect);
                 }
-
             }
             else
             {

@@ -45,7 +45,7 @@ namespace BetterColonistBar
                 if (_cacheUsed)
                     return false;
 
-                bool dirty = _lastCache == status;
+                bool dirty = _lastCache != status;
                 _cacheUsed = true;
                 _lastCache = status;
                 return dirty;

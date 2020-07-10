@@ -24,7 +24,7 @@ namespace BetterColonistBar
             if (_settings.ShowInspiredPawn && pawn.Inspired)
                 return true;
 
-            if (_settings.ShowIllPawn && BCBManager.GetStatusFor(pawn).HasTendingHediff)
+            if (_settings.ShowSickPawn && BCBManager.GetStatusFor(pawn).HasTendingHediff)
                 return true;
 
             if (_settings.ShowGuestPawn && (pawn.IsQuestLodger() || pawn.IsQuestHelper()))

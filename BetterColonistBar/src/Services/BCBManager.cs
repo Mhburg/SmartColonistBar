@@ -25,7 +25,7 @@ namespace BetterColonistBar
         private static readonly CacheTable<Pawn, BreakLevelCache> _breakLevelCaches =
             new CacheTable<Pawn, BreakLevelCache>(new BreakLevelCacheMaker());
 
-        private static readonly BetterColonistBarSettings _settings = BetterColonistBarMod.ModSettings;
+        private static PawnOrderBleedingCache _bleedingCache;
 
         public static Dictionary<Pawn, MoodBarLocation> BarLocations = new Dictionary<Pawn, MoodBarLocation>(PawnComparer.Instance);
 
@@ -41,28 +41,36 @@ namespace BetterColonistBar
 
         public static PawnStatusCache GetStatusFor(Pawn pawn) => _statusCaches[pawn];
 
-        public static ReaderWriterLockSlim UpdateLock { get; set; } = new ReaderWriterLockSlim();
-
-        public static int ProcessorCount { get; } = Environment.ProcessorCount;
-
         public static void Reset()
         {
             _statusCaches.Clear();
             _breakLevelCaches.Clear();
-            Log.Message($"Processor count: {Environment.ProcessorCount}");
+            _bleedingCache = new PawnOrderBleedingCache();
+        }
+
+        public static void Reorder()
+        {
+            if (BetterColonistBarMod.ModSettings.SortBleedingPawn)
+            {
+                _bleedingCache.Reorder();
+            }
         }
 
         public static bool UpdateColonistBar()
         {
+            Reorder();
+
             return EntriesCache.AsParallel().Aggregate(
                 false
                 , (current, entry) =>
-                    current | (_breakLevelCaches[entry.pawn].Dirty | _statusCaches[entry.pawn].Dirty));
+                    current
+                    | _breakLevelCaches[entry.pawn].Dirty
+                    | _statusCaches[entry.pawn].Dirty);
         }
 
         public class PawnComparer : IEqualityComparer<Pawn>
         {
-            public static PawnComparer Instance = new PawnComparer();
+            public static PawnComparer Instance { get; } = new PawnComparer();
 
             #region Implementation of IEqualityComparer<in Pawn>
 

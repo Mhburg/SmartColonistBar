@@ -13,6 +13,8 @@ namespace BetterColonistBar.UI
 {
     public static class DrawUtility
     {
+        public const int MaxRGBValue = 255;
+
         public static Texture2D GetTexture(this MoodLevel moodLevel)
         {
             switch (moodLevel)

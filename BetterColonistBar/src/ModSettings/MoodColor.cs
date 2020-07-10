@@ -11,12 +11,12 @@ namespace BetterColonistBar
     /// </summary>
     public static class MoodColor
     {
-        public static Color Satisfied { get; set; } = ColorLibrary.Cyan;
+        public static Color Satisfied => BetterColonistBarMod.ModSettings.Satisfied;
 
-        public static Color Minor { get; set; } = ColorLibrary.Gold;
+        public static Color Minor => BetterColonistBarMod.ModSettings.Minor;
 
-        public static Color Major { get; set; } = ColorLibrary.DarkOrange;
+        public static Color Major => BetterColonistBarMod.ModSettings.Major;
 
-        public static Color Extreme { get; set; } = ColorLibrary.Red;
+        public static Color Extreme => BetterColonistBarMod.ModSettings.Extreme;
     }
 }

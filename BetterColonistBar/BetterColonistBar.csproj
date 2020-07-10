@@ -77,6 +77,7 @@
     <None Include="src\HarmonyPatches\InspirationHandler_TryStartInspiration_NewTemp_Patch.cs" />
     <Compile Include="src\HarmonyPatches\GenMapUI_Patch.cs" />
     <Compile Include="src\HarmonyPatches\TryDistributeHorizontalSlotsBetweenGroups_Patch.cs" />
+    <Compile Include="src\Models\PawnOrderBleedingCache.cs" />
     <Compile Include="src\Models\BreakLevelCache.cs" />
     <Compile Include="src\Models\BreakLevelCacheMaker.cs" />
     <Compile Include="src\Models\BreakLevelModel.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="src\Models\MoodLevel.cs" />
     <Compile Include="src\Models\PawnStatusCache.cs" />
     <Compile Include="src\Models\PawnStatusCacheMaker.cs" />
+    <Compile Include="src\ModSettings\BCBComponent.cs" />
     <Compile Include="src\ModSettings\BetterColonistBarMod.cs" />
     <Compile Include="src\ModSettings\BetterColonistBarSettings.cs" />
     <Compile Include="src\ModSettings\MoodColor.cs" />
@@ -94,12 +96,13 @@
     <Compile Include="src\Models\MoodLevelCacheMaker.cs" />
     <Compile Include="src\Models\PawnMoodCacheTable.cs" />
     <Compile Include="src\Services\BCBManager.cs" />
+    <Compile Include="src\UI\Dialog_ColorPicker.cs" />
+    <Compile Include="src\UI\UIText.cs" />
+    <Compile Include="src\Utilities\ColonistBarUitlity.cs" />
     <Compile Include="src\Utilities\DrawUtility.cs" />
     <Compile Include="src\Utilities\PawnUtility.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="src\UI\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="packages.config" />
@@ -138,9 +141,18 @@
     <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.3.0.0\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.3.0.0\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>call "$(SolutionDir)Deploy.bat" "$(ProjectDir)" "$(OutDir)" $(Configuration)
-xcopy /i /e /d /y "$(SolutionDir)ModItems\About" "$(OutDir)..\..\About"
-echo F|xcopy /d /y "$(SolutionDir)ModItems\LoadFolders.xml" "$(OutDir)..\..\LoadFolders.xml"
-echo F|xcopy /d /y "D:\Modding\RimWorldUtility\bin\Release\NotooShabby.RimWorldUtility.dll" "$(OutDir)..\..\Common\Assemblies\NotooShabby.RimWorldUtility.dll"</PostBuildEvent>
+    <PostBuildEvent>
+            call "$(SolutionDir)Deploy.bat" "$(ProjectDir)" "$(OutDir)" $(Configuration)
+            xcopy /i /e /d /y "$(SolutionDir)ModItems\About" "$(OutDir)..\..\About"
+            echo F|xcopy /d /y "$(SolutionDir)ModItems\LoadFolders.xml" "$(OutDir)..\..\LoadFolders.xml"
+            echo F|xcopy /d /y "D:\Modding\RimWorldUtility\bin\Release\NotooShabby.RimWorldUtility.dll" "$(OutDir)..\..\Common\Assemblies\NotooShabby.RimWorldUtility.dll"
+        </PostBuildEvent>
   </PropertyGroup>
+  <Target Name="CopySupportDll" AfterTargets="Build">
+    <Copy Condition="'$(Configuration)'=='Release'" SourceFiles="D:\Modding\RimWorldUtility\bin\Release\NotooShabby.RimWorldUtility.dll" DestinationFiles="G:\SteamLibrary\steamapps\common\RimWorld\Mods\BetterColonistBar\Common\Assemblies\NotooShabby.RimWorldUtility.dll" SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <SourceFiles Include="D:\Modding\RimWorldUtility\bin\Debug\NotooShabby.RimWorldUtility.dll;D:\Modding\RimWorldUtility\bin\Debug\NotooShabby.RimWorldUtility.pdb" />
+    </ItemGroup>
+    <Copy Condition="'$(Configuration)'=='Debug'" SourceFiles="@(SourceFiles)" DestinationFolder="G:\SteamLibrary\steamapps\common\RimWorld\Mods\BetterColonistBar\Common\Assemblies" SkipUnchangedFiles="true" />
+  </Target>
 </Project>
