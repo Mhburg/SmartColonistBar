@@ -37,7 +37,7 @@ namespace BetterColonistBar
                 if (_cacheUsed)
                     return false;
 
-                bool belowMood = model.MoodLevel <= _settings.shownMoodLevel;
+                bool belowMood = model.MoodLevel <= _settings.ShownMoodLevel;
                 bool dirty = belowMood ^ _lastMood;
                 _lastMood = belowMood;
                 _cacheUsed = true;

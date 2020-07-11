@@ -60,11 +60,10 @@ namespace BetterColonistBar
             const float lineHeight = GenUI.ListSpacing * 2;
 
             listing.Gap();
-            string buffer = ModSettings.MoodUpdateInterval.ToString(CultureInfo.InvariantCulture);
-            Draw.IntegerSetting($"{UIText.MoodUpdateInterval.TranslateSimple()}:", listing.GetRect(lineHeight), ref ModSettings.MoodUpdateInterval);
+            Draw.IntegerSetting($"{UIText.MoodUpdateInterval.TranslateSimple()}:", listing.GetRect(lineHeight), ref ModSettings.MoodUpdateInterval, tooltip: UIText.TickExplaination.TranslateSimple());
 
             listing.Gap();
-            Draw.IntegerSetting($"{UIText.StatusUpdateInterval.TranslateSimple()}:", listing.GetRect(lineHeight), ref ModSettings.StatusUpdateInterval);
+            Draw.IntegerSetting($"{UIText.StatusUpdateInterval.TranslateSimple()}:", listing.GetRect(lineHeight), ref ModSettings.StatusUpdateInterval, tooltip: UIText.TickExplaination.TranslateSimple());
 
             listing.Gap();
             int seconds = ModSettings.AutoHideButtonTime.Seconds;
@@ -78,6 +77,13 @@ namespace BetterColonistBar
             DrawColorOption(listing, MoodLevel.Minor);
             DrawColorOption(listing, MoodLevel.Major);
             DrawColorOption(listing, MoodLevel.Extreme);
+            if (listing.ButtonText(ModSettings.ShownMoodLevel.ToString()))
+            {
+                FloatMenuUtility.MakeMenu(
+                    Enum.GetValues(typeof(MoodLevel)).Cast<MoodLevel>().Where(e => e != MoodLevel.Undefined)
+                    , m => m.ToString()
+                    , m => () => ModSettings.ShownMoodLevel = m);
+            }
 
             listing.GapLine();
 
@@ -98,6 +104,19 @@ namespace BetterColonistBar
                 , listing.GetRect(lineHeight)
                 , ref ModSettings.CurrMoodLevelThickness
                 , i => ModSettings.UISettingsChanged = true);
+
+            int yOffset = Mathf.RoundToInt(ModSettings.YOffset);
+            listing.Gap();
+            Draw.IntegerSetting(
+                $"{UIText.YOffset.TranslateSimple()}:"
+                , listing.GetRect(lineHeight)
+                , ref yOffset
+                , i =>
+                {
+                    ModSettings.YOffset = yOffset;
+                    Find.ColonistBar.MarkColonistsDirty();
+                    BCBManager.ModColonistBarDirty = true;
+                });
 
             listing.End();
         }

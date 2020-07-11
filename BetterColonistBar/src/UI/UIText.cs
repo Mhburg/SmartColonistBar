@@ -47,6 +47,10 @@ namespace BetterColonistBar.UI
 
         public const string CurrMoodLevelThickness = "BetterColonistBar_CurrMoodLevelThickness";
 
+        public const string YOffset = "BetterColonistBar_YOffset";
+
+        public const string TickExplaination = "BetterColonistBar_TickExplaination";
+
         public const string Configure = "BetterColonistBar_Configure";
     }
 }

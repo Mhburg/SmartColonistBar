@@ -45,7 +45,7 @@ namespace BetterColonistBar
             if (pawn.CurJob?.def == JobDefOf.FleeAndCower)
                 return true;
 
-            MoodLevel shownMoodLevel = BetterColonistBarMod.ModSettings.shownMoodLevel;
+            MoodLevel shownMoodLevel = BetterColonistBarMod.ModSettings.ShownMoodLevel;
 
             return BCBManager.GetBreakLevelFor(pawn).MoodLevel <= shownMoodLevel;
         }

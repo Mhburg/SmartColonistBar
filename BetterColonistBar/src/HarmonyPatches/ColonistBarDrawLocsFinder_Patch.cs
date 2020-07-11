@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
@@ -18,11 +19,19 @@ namespace BetterColonistBar.HarmonyPatches
     public class ColonistBarDrawLocsFinder_Patch
     {
         private static readonly MethodInfo _calculateDrawLocs =
-            typeof(RimWorld.ColonistBarDrawLocsFinder).GetMethod(nameof(RimWorld.ColonistBarDrawLocsFinder.CalculateDrawLocs));
+            typeof(ColonistBarDrawLocsFinder).GetMethod(nameof(ColonistBarDrawLocsFinder.CalculateDrawLocs));
+
+        private static readonly MethodInfo _calcualteDrawLocs2 =
+            typeof(ColonistBarDrawLocsFinder)
+                .GetMethod(nameof(ColonistBarDrawLocsFinder.CalculateDrawLocs), BindingFlags.NonPublic | BindingFlags.Instance);
 
         private static readonly MethodInfo _calculateDrawLocsPrefix =
             typeof(ColonistBarDrawLocsFinder_Patch)
                 .GetMethod(nameof(CalculateDrawLocsPrefix), BindingFlags.Public | BindingFlags.Static);
+
+        private static readonly MethodInfo _calculateDrawLocsTranspiler =
+            typeof(ColonistBarDrawLocsFinder_Patch)
+                .GetMethod(nameof(CalculateDrawLocsTranspiler), BindingFlags.Public | BindingFlags.Static);
 
         private static readonly MethodInfo _calculateColonistsInGroup =
             typeof(ColonistBarDrawLocsFinder)
@@ -37,9 +46,15 @@ namespace BetterColonistBar.HarmonyPatches
 
         private static readonly BetterColonistBarSettings _settings = BetterColonistBarMod.ModSettings;
 
+        private static readonly FieldInfo _settingField = typeof(ColonistBarDrawLocsFinder_Patch)
+            .GetField(nameof(_settings), BindingFlags.NonPublic | BindingFlags.Static);
+
+        private static readonly FieldInfo _yOffset = typeof(BetterColonistBarSettings).GetField(nameof(BetterColonistBarSettings.YOffset));
+
         static ColonistBarDrawLocsFinder_Patch()
         {
             BCBManager.Harmony.Patch(_calculateDrawLocs, new HarmonyMethod(_calculateDrawLocsPrefix));
+            BCBManager.Harmony.Patch(_calcualteDrawLocs2, transpiler: new HarmonyMethod(_calculateDrawLocsTranspiler));
             BCBManager.Harmony.Patch(_calculateColonistsInGroup, new HarmonyMethod(_calculateColonistInGroupPrefix));
         }
 
@@ -47,6 +62,22 @@ namespace BetterColonistBar.HarmonyPatches
         {
             BCBManager.EntriesCache = ((List<ColonistBar.Entry>)_cachedEntries.GetValue(Find.ColonistBar)).ToList();
             return true;
+        }
+
+        public static IEnumerable<CodeInstruction> CalculateDrawLocsTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> instructionsList = instructions.ToList();
+            foreach (CodeInstruction instruction in instructionsList)
+            {
+                if (!instruction.OperandIs(21f))
+                {
+                    yield return instruction;
+                    continue;
+                }
+
+                yield return new CodeInstruction(OpCodes.Ldsfld, _settingField);
+                yield return new CodeInstruction(OpCodes.Ldfld, _yOffset);
+            }
         }
 
         public static bool CalculateColonistsInGroupPrefix()

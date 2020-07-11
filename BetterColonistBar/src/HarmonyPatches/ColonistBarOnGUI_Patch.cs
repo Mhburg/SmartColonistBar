@@ -49,9 +49,11 @@ namespace BetterColonistBar.HarmonyPatches
                 return;
 
             if (Event.current.type == EventType.Repaint)
+            {
                 _settings.UISettingsChanged = false;
+                BCBManager.ModColonistBarDirty = false;
+            }
 
-            BCBManager.ModColonistBarDirty = false;
 
             Rect buttonRect = GetRect();
 

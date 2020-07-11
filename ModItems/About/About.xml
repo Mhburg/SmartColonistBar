@@ -3,7 +3,7 @@
     <name>Better Colonist Bar</name>
     <author>NotooShabby</author>
     <packageId>NotooShabby.BetterColonistBar</packageId>
-    <description>Provides color coded colonist bar with performance better than vanilla.</description>
+    <description>Provides highly configurable, high performance color coded colonist bar that will automatically expand/collapse based on various pawn's condition, e.g., injuries, inspiration and mental breaks.</description>
     <url></url>
     <supportedVersions>
         <li>1.1</li>
