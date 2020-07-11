@@ -42,7 +42,6 @@ namespace BetterColonistBar.HarmonyPatches
             BCBManager.Harmony.Patch(_original, transpiler: new HarmonyMethod(_transpiler));
         }
 
-        [HarmonyDebug]
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             Label newLabel = generator.DefineLabel();

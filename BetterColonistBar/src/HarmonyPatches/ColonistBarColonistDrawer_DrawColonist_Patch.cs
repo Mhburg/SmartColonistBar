@@ -22,6 +22,9 @@ using Verse;
 
 namespace BetterColonistBar.HarmonyPatches
 {
+    /// <summary>
+    /// The entry point for drawing the mood bar.
+    /// </summary>
     [StaticConstructorOnStartup]
     public static class ColonistBarColonistDrawer_DrawColonist_Patch
     {
@@ -64,6 +67,7 @@ namespace BetterColonistBar.HarmonyPatches
             {
                 if (list[i].OperandIs(_needs))
                 {
+                    // Remove the code that vanillas uses to draw a background texture based on current mood percentage.
                     list.RemoveRange(i - 1, 31);
                     break;
                 }
@@ -72,6 +76,15 @@ namespace BetterColonistBar.HarmonyPatches
             return list;
         }
 
+        /// <summary>
+        /// Build a <see cref="Texture2D"/> for mood bar.
+        /// </summary>
+        /// <param name="newTexture"> A new <see cref="Texture2D"/> instance, usually created in the main thread. </param>
+        /// <param name="currMoodHeight"> The height of the mood texture that represents the current mood level. </param>
+        /// <param name="moodColor"> What color in which the mood texture should be drawn. </param>
+        /// <param name="moodLevel"> Mood level that a pawn will reach. </param>
+        /// <param name="thresholds"> Mental breaks thresholds. </param>
+        /// <returns></returns>
         public static Texture2D BuildTexture(Texture2D newTexture, float currMoodHeight, Color moodColor, int moodLevel, float[] thresholds)
         {
             ValidateArg.NotNull(thresholds, nameof(thresholds));

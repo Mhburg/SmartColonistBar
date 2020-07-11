@@ -3,3 +3,6 @@
 # CA1062
 dotnet_code_quality.CA1062.exclude_extension_method_this_parameter = true
 dotnet_code_quality.CA1062.null_check_validation_methods = NotNull|NotNullOrEmpty
+
+# CA1707: Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = none

@@ -24,7 +24,7 @@ namespace BetterColonistBar
 
         public const string Id = "NotooShabby.BetterColonistBar";
 
-        public const string Name = "Better Colonist Bar";
+        public const string Name = "Smart Colonist Bar";
 
         /// <summary>
         /// Initialize an instance of <see cref="BetterColonistBarMod"/>.

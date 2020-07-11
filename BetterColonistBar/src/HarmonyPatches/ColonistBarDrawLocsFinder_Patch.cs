@@ -18,6 +18,8 @@ namespace BetterColonistBar.HarmonyPatches
     [StaticConstructorOnStartup]
     public class ColonistBarDrawLocsFinder_Patch
     {
+        private static readonly BetterColonistBarSettings _settings = BetterColonistBarMod.ModSettings;
+
         private static readonly MethodInfo _calculateDrawLocs =
             typeof(ColonistBarDrawLocsFinder).GetMethod(nameof(ColonistBarDrawLocsFinder.CalculateDrawLocs));
 
@@ -44,18 +46,23 @@ namespace BetterColonistBar.HarmonyPatches
         private static readonly FieldInfo _cachedEntries =
             typeof(ColonistBar).GetField("cachedEntries", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private static readonly BetterColonistBarSettings _settings = BetterColonistBarMod.ModSettings;
-
         private static readonly FieldInfo _settingField = typeof(ColonistBarDrawLocsFinder_Patch)
             .GetField(nameof(_settings), BindingFlags.NonPublic | BindingFlags.Static);
 
         private static readonly FieldInfo _yOffset = typeof(BetterColonistBarSettings).GetField(nameof(BetterColonistBarSettings.YOffset));
+
+        private static readonly MethodInfo _calculateGroupsCount = typeof(ColonistBarDrawLocsFinder)
+            .GetMethod("CalculateGroupsCount", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private static readonly MethodInfo _calculateGroupsCountPostfix = typeof(ColonistBarDrawLocsFinder_Patch)
+            .GetMethod(nameof(CalculateGroupsCountPostfix), BindingFlags.Public | BindingFlags.Static);
 
         static ColonistBarDrawLocsFinder_Patch()
         {
             BCBManager.Harmony.Patch(_calculateDrawLocs, new HarmonyMethod(_calculateDrawLocsPrefix));
             BCBManager.Harmony.Patch(_calcualteDrawLocs2, transpiler: new HarmonyMethod(_calculateDrawLocsTranspiler));
             BCBManager.Harmony.Patch(_calculateColonistsInGroup, new HarmonyMethod(_calculateColonistInGroupPrefix));
+            BCBManager.Harmony.Patch(_calculateGroupsCount, postfix: new HarmonyMethod(_calculateGroupsCountPostfix));
         }
 
         public static bool CalculateDrawLocsPrefix()
@@ -82,28 +89,46 @@ namespace BetterColonistBar.HarmonyPatches
 
         public static bool CalculateColonistsInGroupPrefix()
         {
-            BCBManager.ModColonistBarDirty = true;
-            if (_settings.Expanded)
+            try
             {
-                return true;
+                BCBManager.ModColonistBarDirty = true;
+                if (_settings.Expanded)
+                {
+                    return true;
+                }
+
+                List<ColonistBar.Entry> entries = Find.ColonistBar.GetEntries();
+                List<ColonistBar.Entry> copyEntries = new List<ColonistBar.Entry>(entries);
+
+                foreach (ColonistBar.Entry entry in copyEntries)
+                {
+                    if (entry.pawn.ShouldShowBar())
+                        continue;
+
+                    int index = entries.FindIndex(e => e.pawn == entry.pawn);
+                    if (index != -1)
+                        entries.RemoveAt(index);
+                }
+
+                if (entries.Count == 0)
+                    BCBManager.LastBarRect = Rect.zero;
             }
-
-            List <ColonistBar.Entry> entries = Find.ColonistBar.GetEntries();
-            List<ColonistBar.Entry> copyEntries = new List<ColonistBar.Entry>(entries);
-
-            foreach (ColonistBar.Entry entry in copyEntries)
+            catch (Exception e)
             {
-                if (entry.pawn.ShouldShowBar())
-                    continue;
-
-                int index = entries.FindIndex(e => e.pawn == entry.pawn);
-                entries.RemoveAt(index);
+                Log.Message(e.ToString());
             }
-
-            if (entries.Count == 0)
-                BCBManager.LastBarRect = Rect.zero;
 
             return true;
+        }
+
+        public static void CalculateGroupsCountPostfix(ref int __result)
+        {
+            List<ColonistBar.Entry> entries = Find.ColonistBar.Entries;
+            if (entries.TryMaxBy(e => e.@group, out ColonistBar.Entry value))
+            {
+                if (value.@group >= __result)
+                    __result = value.@group + 1;
+            }
         }
     }
 }
