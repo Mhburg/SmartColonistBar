@@ -23,6 +23,14 @@
             SourceFiles="D:\Modding\dnSpy-Unity-mono\builds\Release\unity-2019.2.0\win64\mono-2.0-bdwgc.dll"
             DestinationFiles="G:\SteamLibrary\steamapps\common\RimWorld\MonoBleedingEdge\EmbedRuntime\mono-2.0-bdwgc.dll"
             SkipUnchangedFiles="true"/>
-
     </Target>
+
+    <Target Name="CopyLatestReferencingAssemblies" BeforeTargets="Build">
+        <Copy
+            Condition="'$(Configuration)'=='Release'"
+            SourceFiles="D:\Modding\RimWorldUtility\bin\Release\NotooShabby.RimWorldUtility.dll"
+            DestinationFiles="D:\Modding\BetterColonistBar\References\NotooShabby.RimWorldUtility.dll"
+            SkipUnchangedFiles="true" />
+    </Target>
+
 </Project>
