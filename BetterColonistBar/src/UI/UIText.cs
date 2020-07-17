@@ -51,6 +51,10 @@ namespace BetterColonistBar.UI
 
         public const string TickExplaination = "BetterColonistBar_TickExplaination";
 
+        public const string Hotkey = "BetterColonistBar_Hotkey";
+
+        public const string Record = "BetterColonistBar_Record";
+
         public const string Configure = "BetterColonistBar_Configure";
     }
 }

@@ -86,16 +86,24 @@ namespace BetterColonistBar.HarmonyPatches
                 {
                     if (Event.current.button == 0)
                     {
-                        _settings.Expanded ^= true;
+                        BCBComponent.Expanded ^= true;
                         BCBManager.LastBarRect = Rect.zero;
                         Find.ColonistBar.MarkColonistsDirty();
 
                         return;
                     }
-                    else if (Event.current.button == 1)
-                    {
-                    }
                 }
+            }
+
+            if (Event.current.type == EventType.KeyUp
+                && Event.current.keyCode == _settings.HotKey
+                && Event.current.control == _settings.CtrlKey)
+            {
+                BCBComponent.Expanded ^= true;
+                BCBManager.LastBarRect = Rect.zero;
+                Find.ColonistBar.MarkColonistsDirty();
+
+                return;
             }
 
             if (Event.current.type != EventType.Repaint)
@@ -114,7 +122,7 @@ namespace BetterColonistBar.HarmonyPatches
                 size = _minSize;
 
             float gap = GenUI.Gap * Find.ColonistBar.Scale;
-            if (!_settings.Expanded)
+            if (!BCBComponent.Expanded)
             {
                 Rect rect;
                 if (BCBManager.LastBarRect == Rect.zero)

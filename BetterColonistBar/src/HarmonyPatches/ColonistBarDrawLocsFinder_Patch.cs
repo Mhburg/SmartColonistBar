@@ -92,7 +92,7 @@ namespace BetterColonistBar.HarmonyPatches
             try
             {
                 BCBManager.ModColonistBarDirty = true;
-                if (_settings.Expanded)
+                if (BCBComponent.Expanded)
                 {
                     return true;
                 }

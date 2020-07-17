@@ -66,13 +66,23 @@ namespace BetterColonistBar.UI
                 realRect.x -= realRect.width;
             }
 
-            GUI.color = Mouse.IsOver(realRect) ? GenUI.MouseoverColor : baseColor;
+            bool MouseIsOver = Mouse.IsOver(realRect);
+            GUI.color = MouseIsOver ? GenUI.MouseoverColor : baseColor;
 
             GUI.DrawTexture(rect, image);
 
             GUI.color = Color.white;
 
-            return Widgets.ButtonInvisible(realRect);
+            if (Widgets.ButtonInvisible(realRect))
+            {
+                return true;
+            }
+            else if (MouseIsOver && Input.GetMouseButtonUp(0))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

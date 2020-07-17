@@ -12,6 +12,8 @@ namespace BetterColonistBar
 {
     public class BCBComponent : GameComponent
     {
+        public static bool Expanded = true;
+
         public BCBComponent(Game game)
         {
         }
@@ -22,6 +24,12 @@ namespace BetterColonistBar
         {
             ColonistBarUitlity.Init();
             BCBManager.Reset();
+        }
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look(ref Expanded, nameof(Expanded), true);
         }
 
         #endregion

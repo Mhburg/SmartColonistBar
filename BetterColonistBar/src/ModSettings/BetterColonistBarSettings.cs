@@ -35,13 +35,15 @@ namespace BetterColonistBar
 
         public float MoodBarWidth = 1 / 5f;
 
-        public bool Expanded = false;
-
         public int StatusUpdateInterval = _updateIntervalBase;
 
         public TimeSpan AutoHideButtonTime = new TimeSpan(0, 0, 3);
 
         public Vector2 ColorPickerSize = new Vector2(600, 600);
+
+        public KeyCode HotKey = KeyCode.C;
+
+        public bool CtrlKey = true;
 
         #endregion
 
@@ -77,6 +79,7 @@ namespace BetterColonistBar
         {
             ParseHelper.Parsers<MoodLevel>.Register(str => (MoodLevel)Enum.Parse(typeof(MoodLevel), str));
             ParseHelper.Parsers<TimeSpan>.Register(str => TimeSpan.Parse(str));
+            ParseHelper.Parsers<KeyCode>.Register(str => (KeyCode)Enum.Parse(typeof(KeyCode), str));
         }
 
         #region Overrides of ModSettings
@@ -94,6 +97,8 @@ namespace BetterColonistBar
             Scribe_Values.Look(ref ShowDraftedPawn, nameof(ShowDraftedPawn), true);
             Scribe_Values.Look(ref SortBleedingPawn, nameof(SortBleedingPawn), true);
             Scribe_Values.Look(ref AutoHideButtonTime, nameof(AutoHideButtonTime), new TimeSpan(0, 0, 3));
+            Scribe_Values.Look(ref HotKey, nameof(HotKey), KeyCode.C);
+            Scribe_Values.Look(ref CtrlKey, nameof(CtrlKey), true);
 
             // Save settings on UI
             Scribe_Values.Look(ref Satisfied, nameof(Satisfied), ColorLibrary.Cyan);

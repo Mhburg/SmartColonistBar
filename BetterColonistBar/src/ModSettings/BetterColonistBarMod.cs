@@ -41,6 +41,10 @@ namespace BetterColonistBar
         /// </summary>
         public static BetterColonistBarSettings ModSettings { get; private set; }
 
+        public static bool HasException { get; set; }
+
+        private bool _recordingHotkey;
+
         #region Overrides of Mod
 
         public override void DoSettingsWindowContents(Rect inRect)
@@ -117,6 +121,38 @@ namespace BetterColonistBar
                     Find.ColonistBar.MarkColonistsDirty();
                     BCBManager.ModColonistBarDirty = true;
                 });
+
+            listing.NewColumn();
+
+            Rect rowRect = listing.GetRect(GenUI.ListSpacing);
+            WidgetRow widgetRow = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
+            widgetRow.Label($"{UIText.Hotkey.TranslateSimple()}: ");
+            Rect labelRect = widgetRow.Label(
+                ModSettings.CtrlKey ? $"Ctrl + {ModSettings.HotKey}"
+                                       : $"{ModSettings.HotKey}");
+            widgetRow.GapButtonIcon();
+            if (widgetRow.ButtonText(UIText.Record.TranslateSimple()))
+            {
+                _recordingHotkey = true;
+            }
+
+            if (_recordingHotkey)
+            {
+                Widgets.DrawHighlightSelected(labelRect);
+                if (Event.current.type == EventType.KeyUp || Event.current.isMouse)
+                {
+                    ModSettings.CtrlKey = Event.current.control;
+                    if (Event.current.keyCode != KeyCode.LeftControl && Event.current.keyCode != KeyCode.RightControl)
+                    {
+                        ModSettings.HotKey = Event.current.keyCode;
+                        _recordingHotkey = false;
+                    }
+                    else
+                    {
+                        ModSettings.HotKey = KeyCode.None;
+                    }
+                }
+            }
 
             listing.End();
         }

@@ -120,7 +120,7 @@ namespace BetterColonistBar.HarmonyPatches
 
             for (int x = 0; x < newTexture.width; x++)
             {
-                for (int y = moodLevel; y < moodLevel + _settings.CurrMoodLevelThickness; y++)
+                for (int y = moodLevel - _settings.CurrMoodLevelThickness; y < moodLevel; y++)
                     newTexture.SetPixel(x, y, _settings.CurrMoodLevel);
             }
 
