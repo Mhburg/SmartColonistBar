@@ -31,6 +31,8 @@ namespace BetterColonistBar
 
         public static Harmony Harmony { get; } = new Harmony(BetterColonistBarMod.Id);
 
+        public static List<MethodInfo> PatchedMethod { get; private set; } = new List<MethodInfo>();
+
         public static Rect LastBarRect { get; set; } = Rect.zero;
 
         public static bool ModColonistBarDirty { get; set; } = true;
@@ -63,8 +65,8 @@ namespace BetterColonistBar
             return EntriesCache.AsParallel().Aggregate(
                 false
                 , (current, entry) =>
-                    current
-                    | _breakLevelCaches[entry.pawn].Dirty
+                    !(current | entry.pawn is null)
+                    && _breakLevelCaches[entry.pawn].Dirty
                     | _statusCaches[entry.pawn].Dirty);
         }
 

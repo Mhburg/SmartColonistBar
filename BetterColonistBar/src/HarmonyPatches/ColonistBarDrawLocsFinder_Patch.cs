@@ -115,7 +115,9 @@ namespace BetterColonistBar.HarmonyPatches
             }
             catch (Exception e)
             {
-                Log.Message(e.ToString());
+                Log.Warning(e.ToString());
+                BetterColonistBarMod.HasException = true;
+                BetterColonistBarMod.Exception = e;
             }
 
             return true;

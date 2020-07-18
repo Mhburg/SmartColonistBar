@@ -43,7 +43,15 @@ namespace BetterColonistBar
 
         public static bool HasException { get; set; }
 
+        public static Exception Exception { get; set; }
+
         private bool _recordingHotkey;
+
+        public static void Reset()
+        {
+            HasException = false;
+            Exception = null;
+        }
 
         #region Overrides of Mod
 

@@ -129,27 +129,35 @@ namespace BetterColonistBar.HarmonyPatches
 
         private static void DrawAddOn(Color color, Rect rect, Pawn pawn)
         {
-            if (BCBManager.ModColonistBarDirty)
+            try
             {
-                BCBManager.LastBarRect = Rect.zero;
-                if (rect.y > BCBManager.LastBarRect.y)
-                    BCBManager.LastBarRect = rect;
-                else if (Math.Round(rect.y) == Math.Round(BCBManager.LastBarRect.y) && rect.x > BCBManager.LastBarRect.x)
-                    BCBManager.LastBarRect = rect;
+                if (BCBManager.ModColonistBarDirty)
+                {
+                    BCBManager.LastBarRect = Rect.zero;
+                    if (rect.y > BCBManager.LastBarRect.y)
+                        BCBManager.LastBarRect = rect;
+                    else if (Math.Round(rect.y) == Math.Round(BCBManager.LastBarRect.y) &&
+                             rect.x > BCBManager.LastBarRect.x)
+                        BCBManager.LastBarRect = rect;
+                }
+
+                if (pawn.mindState is null)
+                    return;
+
+                BreakLevelModel breakLevelModel = BCBManager.GetBreakLevelFor(pawn);
+                if (breakLevelModel.MoodLevel == MoodLevel.Undefined)
+                    return;
+
+                GUI.color = color;
+                DrawMoodBarFast(rect, pawn, breakLevelModel);
+                GUI.color = Color.white;
             }
-
-            if (pawn.mindState is null)
-                return;
-
-            BreakLevelModel breakLevelModel = BCBManager.GetBreakLevelFor(pawn);
-            if (breakLevelModel.MoodLevel == MoodLevel.Undefined)
-                return;
-
-            GUI.color = color;
-            DrawMoodBarFast(rect, pawn, breakLevelModel);
-            GUI.color = Color.white;
-
-            //DrawMoodBar(color, rect, pawn, breakLevelModel);
+            catch (Exception e)
+            {
+                Log.Warning(e.ToString());
+                BetterColonistBarMod.HasException = true;
+                BetterColonistBarMod.Exception = e;
+            }
         }
 
         private static void DrawMoodBar(Color color, Rect portraitRect, Pawn pawn, BreakLevelModel breakLevelModel)

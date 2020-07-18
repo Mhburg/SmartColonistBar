@@ -26,7 +26,7 @@ namespace BetterColonistBar
         private int _status;
 
         public PawnStatusCache(Pawn pawn)
-            : base(0, () => Find.TickManager.TicksGame, _settings.StatusUpdateInterval, null, Find.TickManager.TicksGame)
+            : base(0, null, _settings.StatusUpdateInterval, null, 0)
         {
             _pawn = pawn;
             this.Update = CheckPawnStatus;
@@ -36,6 +36,16 @@ namespace BetterColonistBar
         public bool HasTendingHediff { get; private set; } = false;
 
         public bool HasInspiration { get; private set; } = false;
+
+        #region Overrides of CacheableTick<int>
+
+        public override bool ShouldUpdate(out int now)
+        {
+            now = 0;
+            return (_pawn.thingIDNumber + Find.TickManager.TicksGame) % _settings.StatusUpdateInterval == 0;
+        }
+
+        #endregion
 
         public bool Dirty
         {

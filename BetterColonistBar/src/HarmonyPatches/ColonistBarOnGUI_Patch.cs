@@ -54,64 +54,72 @@ namespace BetterColonistBar.HarmonyPatches
                 BCBManager.ModColonistBarDirty = false;
             }
 
-
-            Rect buttonRect = GetRect();
-
-            bool showButton = !_settings.AutoHide;
-            if (!showButton)
+            try
             {
-                bool timetoShowButton = false;
+                Rect buttonRect = GetRect();
 
-                if (_firstDraw)
+                bool showButton = !_settings.AutoHide;
+                if (!showButton)
                 {
-                    _firstDraw = false;
-                    _lastTimeShow = DateTime.UtcNow;
-                }
-                else if (DateTime.UtcNow - _lastTimeShow < _settings.AutoHideButtonTime)
-                {
-                    timetoShowButton = true;
-                }
-                else if (MouseIsOver(buttonRect))
-                {
-                    timetoShowButton = true;
-                    _lastTimeShow = DateTime.UtcNow;
-                }
+                    bool timetoShowButton = false;
 
-                showButton |= timetoShowButton;
-            }
-
-            if (showButton)
-            {
-                if (DrawUtility.ButtonInvertImage(buttonRect, BCBTexture.Expand, _color))
-                {
-                    if (Event.current.button == 0)
+                    if (_firstDraw)
                     {
-                        BCBComponent.Expanded ^= true;
-                        BCBManager.LastBarRect = Rect.zero;
-                        Find.ColonistBar.MarkColonistsDirty();
+                        _firstDraw = false;
+                        _lastTimeShow = DateTime.UtcNow;
+                    }
+                    else if (DateTime.UtcNow - _lastTimeShow < _settings.AutoHideButtonTime)
+                    {
+                        timetoShowButton = true;
+                    }
+                    else if (MouseIsOver(buttonRect))
+                    {
+                        timetoShowButton = true;
+                        _lastTimeShow = DateTime.UtcNow;
+                    }
 
-                        return;
+                    showButton |= timetoShowButton;
+                }
+
+                if (showButton)
+                {
+                    if (DrawUtility.ButtonInvertImage(buttonRect, BCBTexture.Expand, _color))
+                    {
+                        if (Event.current.button == 0)
+                        {
+                            BCBComponent.Expanded ^= true;
+                            BCBManager.LastBarRect = Rect.zero;
+                            Find.ColonistBar.MarkColonistsDirty();
+
+                            return;
+                        }
                     }
                 }
+
+                if (Event.current.type == EventType.KeyUp
+                    && Event.current.keyCode == _settings.HotKey
+                    && Event.current.control == _settings.CtrlKey)
+                {
+                    BCBComponent.Expanded ^= true;
+                    BCBManager.LastBarRect = Rect.zero;
+                    Find.ColonistBar.MarkColonistsDirty();
+
+                    return;
+                }
+
+                if (Event.current.type != EventType.Repaint)
+                    return;
+
+                if (BCBManager.UpdateColonistBar())
+                {
+                    Find.ColonistBar.MarkColonistsDirty();
+                }
             }
-
-            if (Event.current.type == EventType.KeyUp
-                && Event.current.keyCode == _settings.HotKey
-                && Event.current.control == _settings.CtrlKey)
+            catch (Exception e)
             {
-                BCBComponent.Expanded ^= true;
-                BCBManager.LastBarRect = Rect.zero;
-                Find.ColonistBar.MarkColonistsDirty();
-
-                return;
-            }
-
-            if (Event.current.type != EventType.Repaint)
-                return;
-
-            if (BCBManager.UpdateColonistBar())
-            {
-                Find.ColonistBar.MarkColonistsDirty();
+                Log.Warning(e.ToString());
+                BetterColonistBarMod.HasException = true;
+                BetterColonistBarMod.Exception = e;
             }
         }
 

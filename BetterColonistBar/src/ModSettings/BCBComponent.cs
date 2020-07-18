@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using RimWorldUtility.UI;
 using Verse;
 
 namespace BetterColonistBar
@@ -24,12 +26,23 @@ namespace BetterColonistBar
         {
             ColonistBarUitlity.Init();
             BCBManager.Reset();
+            BetterColonistBarMod.Reset();
         }
 
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Values.Look(ref Expanded, nameof(Expanded), true);
+        }
+
+        public override void GameComponentTick()
+        {
+            if (BetterColonistBarMod.HasException)
+            { 
+                BCBManager.Harmony.UnpatchAll(BetterColonistBarMod.Id);
+                Find.WindowStack.Add(new Dialog_ErrorReporting(BetterColonistBarMod.Exception.ToString()));
+                BetterColonistBarMod.HasException = false;
+            }
         }
 
         #endregion

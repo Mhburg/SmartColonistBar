@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using RimWorldUtility;
 using Verse;
@@ -16,18 +17,34 @@ namespace BetterColonistBar
     {
         private static readonly BetterColonistBarSettings _settings = BetterColonistBarMod.ModSettings;
 
+        private static readonly ReaderWriterLockSlim _curMoodLock = new ReaderWriterLockSlim();
+
+        private readonly Pawn _pawn;
+
         private bool _cacheUsed;
 
         private bool _lastMood;
 
+
         public BreakLevelCache(Pawn pawn)
-            : base(new BreakLevelModel(pawn), () => Find.TickManager.TicksGame, _settings.MoodUpdateInterval, null, Find.TickManager.TicksGame)
+            : base(new BreakLevelModel(pawn), null, _settings.MoodUpdateInterval, null, 0)
         {
             ValidateArg.NotNull(pawn, nameof(pawn));
 
+            _pawn = pawn;
             this.Update = this.UpdateCache;
             _backingField = this.UpdateCache(pawn);
         }
+
+        #region Overrides of CacheableTick<BreakLevelModel>
+
+        public override bool ShouldUpdate(out int now)
+        {
+            now = 0;
+            return (_pawn.thingIDNumber + Find.TickManager.TicksGame) % _settings.StatusUpdateInterval == 0;
+        }
+
+        #endregion
 
         public bool Dirty
         {
@@ -67,7 +84,9 @@ namespace BetterColonistBar
                 _backingField.Minor = breaker.BreakThresholdMinor;
                 _backingField.Major = breaker.BreakThresholdMajor;
                 _backingField.Extreme = breaker.BreakThresholdExtreme;
+                _curMoodLock.EnterWriteLock();
                 _backingField.CurInstanLevel = _backingField.Pawn.needs?.mood?.CurInstantLevel ?? 0;
+                _curMoodLock.ExitWriteLock();
                 _backingField.MoodLevel = this.GetMoodLevel(pawn);
                 return _backingField;
             }
