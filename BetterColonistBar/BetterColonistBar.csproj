@@ -16,7 +16,7 @@
     <AssemblyName>BetterColonistBar</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
+    <Deterministic>false</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -150,7 +150,11 @@
             xcopy /i /e /d /y "$(SolutionDir)ModItems\About" "$(OutDir)..\..\About"
             echo F|xcopy /d /y "$(SolutionDir)ModItems\LoadFolders.xml" "$(OutDir)..\..\LoadFolders.xml"
             echo F|xcopy /d /y "D:\Modding\RimWorldUtility\bin\Release\NotooShabby.RimWorldUtility.dll" "$(OutDir)..\..\Common\Assemblies\NotooShabby.RimWorldUtility.dll"
-        </PostBuildEvent>
+powershell Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
+powershell "D:\Modding\BetterColonistBar\PrintVersion.ps1" -outdir $(OutDir) -outDll $(TargetFileName) -xml $(SolutionDir)ModItems\Languages\English\Keyed\BetterColonistBar.xml -solutionDir $(SolutionDir)
+powershell Set-ExecutionPolicy -ExecutionPolicy Restrict -Scope CurrentUser
+
+</PostBuildEvent>
   </PropertyGroup>
   <Target Name="CopySupportDll" AfterTargets="Build">
     <Copy Condition="'$(Configuration)'=='Release'" SourceFiles="D:\Modding\RimWorldUtility\bin\Release\NotooShabby.RimWorldUtility.dll" DestinationFiles="G:\SteamLibrary\steamapps\common\RimWorld\Mods\BetterColonistBar\Common\Assemblies\NotooShabby.RimWorldUtility.dll" SkipUnchangedFiles="true" />

@@ -27,7 +27,7 @@ namespace BetterColonistBar
 
 
         public BreakLevelCache(Pawn pawn)
-            : base(new BreakLevelModel(pawn), null, _settings.MoodUpdateInterval, null, 0)
+            : base(new BreakLevelModel(pawn), () => Find.TickManager.TicksGame, _settings.MoodUpdateInterval, null, 0)
         {
             ValidateArg.NotNull(pawn, nameof(pawn));
 
@@ -40,8 +40,18 @@ namespace BetterColonistBar
 
         public override bool ShouldUpdate(out int now)
         {
-            now = 0;
-            return (_pawn.thingIDNumber + Find.TickManager.TicksGame) % _settings.StatusUpdateInterval == 0;
+            now = this.Now();
+            bool result = (_pawn.thingIDNumber + now) % _settings.StatusUpdateInterval == 0
+                                                    && this.LastUpdateTime != now;
+            if (result)
+                return _backingField.UpdateBarTexture = result;
+
+            return false;
+        }
+
+        public override bool Validate()
+        {
+            return !(_pawn is null || _pawn.Destroyed);
         }
 
         #endregion

@@ -14,14 +14,11 @@ namespace BetterColonistBar
 {
     public class BreakLevelModel
     {
-        private readonly int _updateTick;
-
         public BreakLevelModel(Pawn pawn)
         {
             ValidateArg.NotNull(pawn, nameof(pawn));
 
             this.Pawn = pawn;
-            _updateTick = pawn.thingIDNumber % BetterColonistBarMod.ModSettings.MoodUpdateInterval;
         }
 
         public Pawn Pawn { get; set; }
@@ -36,8 +33,7 @@ namespace BetterColonistBar
 
         public MoodLevel MoodLevel { get; set; }
 
-        public bool UpdateBarTexture =>
-            Find.TickManager.TicksGame % BetterColonistBarMod.ModSettings.MoodUpdateInterval == _updateTick;
+        public bool UpdateBarTexture { get; set; }
 
         public bool BuildingTexture { get; set; }
 

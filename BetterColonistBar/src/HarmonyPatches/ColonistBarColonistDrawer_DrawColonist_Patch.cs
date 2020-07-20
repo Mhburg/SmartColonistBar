@@ -118,6 +118,11 @@ namespace BetterColonistBar.HarmonyPatches
                 }
             }
 
+            if (moodLevel < _settings.CurrMoodLevelThickness)
+            {
+                moodLevel = _settings.CurrMoodLevelThickness;
+            }
+
             for (int x = 0; x < newTexture.width; x++)
             {
                 for (int y = moodLevel - _settings.CurrMoodLevelThickness; y < moodLevel; y++)
@@ -263,6 +268,7 @@ namespace BetterColonistBar.HarmonyPatches
             if (_settings.UISettingsChanged || (breakLevelModel.UpdateBarTexture && !breakLevelModel.BuildingTexture))
             {
                 breakLevelModel.BuildingTexture = true;
+                breakLevelModel.UpdateBarTexture = false;
                 Texture2D newTexture = new Texture2D(Mathf.RoundToInt(moodBaRect.width), Mathf.RoundToInt(moodBaRect.height));
                 _tasks.Add(Task.Run(() => BuildTexture(newTexture, moodBaRect, pawn, breakLevelModel, thresholds)));
             }

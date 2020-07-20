@@ -14,8 +14,6 @@ namespace BetterColonistBar
 {
     public class MoodLevelCache : CacheableTick<MoodLevel>
     {
-        private bool _lastCheck;
-
         public MoodLevelCache(int updateInterval, Pawn pawn)
             : base(GetMoodLevel(pawn), () => Find.TickManager.TicksGame, updateInterval, () => GetMoodLevel(pawn))
         {
@@ -27,17 +25,16 @@ namespace BetterColonistBar
 
             BreakLevelModel breakLevel = BCBManager.GetBreakLevelFor(pawn);
 
-            MentalBreaker breaker = pawn.mindState?.mentalBreaker;
-            if (breaker is null)
+            if (breakLevel is null)
                 return MoodLevel.Undefined;
 
-            float curMood = breaker.CurMood;
+            float curMood = breakLevel.CurInstanLevel;
 
-            if (curMood >= breaker.BreakThresholdMinor)
+            if (curMood >= breakLevel.Minor)
                 return MoodLevel.Satisfied;
-            else if (curMood >= breaker.BreakThresholdMajor)
+            else if (curMood >= breakLevel.Major)
                 return MoodLevel.Minor;
-            else if (curMood >= breaker.BreakThresholdExtreme)
+            else if (curMood >= breakLevel.Extreme)
                 return MoodLevel.Major;
             else
                 return MoodLevel.Extreme;

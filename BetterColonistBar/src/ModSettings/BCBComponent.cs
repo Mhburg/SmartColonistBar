@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using BetterColonistBar.UI;
 using RimWorldUtility.UI;
 using Verse;
 
@@ -40,9 +41,20 @@ namespace BetterColonistBar
             if (BetterColonistBarMod.HasException)
             { 
                 BCBManager.Harmony.UnpatchAll(BetterColonistBarMod.Id);
-                Find.WindowStack.Add(new Dialog_ErrorReporting(BetterColonistBarMod.Exception.ToString()));
+                Find.WindowStack.Add(
+                    new Dialog_ErrorReporting(
+                        string.Concat(
+                            UIText.Version.TranslateSimple()
+                            , " -- "
+                            , UIText.Commit.TranslateSimple()
+                            , Environment.NewLine
+                            , BetterColonistBarMod.AssemblyName?.FullName ?? "Assembly not found"
+                            , Environment.NewLine
+                            , BetterColonistBarMod.Exception.ToString())));
                 BetterColonistBarMod.HasException = false;
             }
+
+            BCBManager.UpdateCache();
         }
 
         #endregion

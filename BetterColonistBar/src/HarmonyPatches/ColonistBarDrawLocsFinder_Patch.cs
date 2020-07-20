@@ -102,6 +102,9 @@ namespace BetterColonistBar.HarmonyPatches
 
                 foreach (ColonistBar.Entry entry in copyEntries)
                 {
+                    if (entry.pawn == null)
+                        continue;
+
                     if (entry.pawn.ShouldShowBar())
                         continue;
 

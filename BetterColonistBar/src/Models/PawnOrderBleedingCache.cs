@@ -36,6 +36,7 @@ namespace BetterColonistBar
                 return;
 
             Find.ColonistBar.UpdateEntries(_entries);
+            BCBManager.ModColonistBarDirty = true;
             _cacheUsed = true;
         }
 
@@ -43,6 +44,7 @@ namespace BetterColonistBar
         {
             var entries = Find.ColonistBar.GetEntries();
             _entries = entries
+                .Where(t => t.pawn != null)
                 .OrderBy(t => t.@group)
                 .ThenBy(t => HealthUtility.TicksUntilDeathDueToBloodLoss(t.pawn))
                 .ToList();

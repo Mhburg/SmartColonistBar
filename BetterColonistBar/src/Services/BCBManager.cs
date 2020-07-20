@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using HarmonyLib;
 using RimWorld;
 using RimWorldUtility;
+using RimWorldUtility.Models;
 using UnityEngine;
 using Verse;
 
@@ -19,11 +20,11 @@ namespace BetterColonistBar
 {
     public static class BCBManager
     {
-        private static readonly CacheTable<Pawn, PawnStatusCache> _statusCaches =
-            new CacheTable<Pawn, PawnStatusCache>(new PawnStatusCacheMaker());
+        private static readonly ConcurrentCacheTable<Pawn, PawnStatusCache> _statusCaches =
+            new ConcurrentCacheTable<Pawn, PawnStatusCache>(new PawnStatusCacheMaker());
 
-        private static readonly CacheTable<Pawn, BreakLevelCache> _breakLevelCaches =
-            new CacheTable<Pawn, BreakLevelCache>(new BreakLevelCacheMaker());
+        private static readonly ConcurrentCacheTable<Pawn, BreakLevelCache> _breakLevelCaches =
+            new ConcurrentCacheTable<Pawn, BreakLevelCache>(new BreakLevelCacheMaker());
 
         private static PawnOrderBleedingCache _bleedingCache;
 
@@ -50,6 +51,12 @@ namespace BetterColonistBar
             _bleedingCache = new PawnOrderBleedingCache();
         }
 
+        public static void UpdateCache()
+        {
+            UpdateCache(_breakLevelCaches);
+            UpdateCache(_statusCaches);
+        }
+
         public static void Reorder()
         {
             if (BetterColonistBarMod.ModSettings.SortBleedingPawn)
@@ -62,12 +69,28 @@ namespace BetterColonistBar
         {
             Reorder();
 
-            return EntriesCache.AsParallel().Aggregate(
-                false
-                , (current, entry) =>
-                    !(current | entry.pawn is null)
-                    && _breakLevelCaches[entry.pawn].Dirty
-                    | _statusCaches[entry.pawn].Dirty);
+            int result = 0;
+            EntriesCache.AsParallel().ForAll(
+                t =>
+                {
+                    bool dirty = t.pawn != null && (_breakLevelCaches[t.pawn].Dirty | _statusCaches[t.pawn].Dirty);
+                    if (dirty)
+                        Interlocked.Exchange(ref result, 1);
+                });
+
+            return result > 0;
+        }
+
+        private static void UpdateCache<TKey, TValue>(IDictionary<TKey, TValue> cacheTable)
+            where TValue : CacheableBase
+        {
+            foreach (var pair in cacheTable.ToList())
+            {
+                if (pair.Value.Validate())
+                    pair.Value.TriggerUpdate();
+                else
+                    cacheTable.Remove(pair.Key);
+            }
         }
 
         public class PawnComparer : IEqualityComparer<Pawn>

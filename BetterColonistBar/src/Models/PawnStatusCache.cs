@@ -26,7 +26,7 @@ namespace BetterColonistBar
         private int _status;
 
         public PawnStatusCache(Pawn pawn)
-            : base(0, null, _settings.StatusUpdateInterval, null, 0)
+            : base(0, () => Find.TickManager.TicksGame, _settings.StatusUpdateInterval, null, 0)
         {
             _pawn = pawn;
             this.Update = CheckPawnStatus;
@@ -41,8 +41,18 @@ namespace BetterColonistBar
 
         public override bool ShouldUpdate(out int now)
         {
-            now = 0;
-            return (_pawn.thingIDNumber + Find.TickManager.TicksGame) % _settings.StatusUpdateInterval == 0;
+            now = this.Now();
+            return (_pawn.thingIDNumber + now) % _settings.StatusUpdateInterval == 0
+                                                    && this.LastUpdateTime != now;
+        }
+
+        #endregion
+
+        #region Overrides of CacheableBase<int,int,int>
+
+        public override bool Validate()
+        {
+            return !(_pawn == null || _pawn.Destroyed);
         }
 
         #endregion
@@ -58,6 +68,7 @@ namespace BetterColonistBar
                 bool dirty = _lastCache != status;
                 _cacheUsed = true;
                 _lastCache = status;
+
                 return dirty;
             }
         }

@@ -55,6 +55,10 @@ namespace BetterColonistBar.UI
 
         public const string Record = "BetterColonistBar_Record";
 
+        public const string Version = "BetterColonistBar_Version";
+
+        public const string Commit = "BetterColonistBar_Commit";
+
         public const string Configure = "BetterColonistBar_Configure";
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using BetterColonistBar.UI;
@@ -26,6 +27,8 @@ namespace BetterColonistBar
 
         public const string Name = "Smart Colonist Bar";
 
+        public static readonly AssemblyName AssemblyName = Assembly.GetExecutingAssembly().GetName();
+
         /// <summary>
         /// Initialize an instance of <see cref="BetterColonistBarMod"/>.
         /// </summary>
@@ -34,6 +37,7 @@ namespace BetterColonistBar
             : base(content)
         {
             ModSettings = this.GetSettings<BetterColonistBarSettings>();
+            Log.Message($"{Name} Version: {AssemblyName.Version}");
         }
 
         /// <summary>
