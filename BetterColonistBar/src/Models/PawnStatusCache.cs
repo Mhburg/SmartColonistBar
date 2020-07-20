@@ -26,27 +26,18 @@ namespace BetterColonistBar
         private int _status;
 
         public PawnStatusCache(Pawn pawn)
-            : base(0, () => Find.TickManager.TicksGame, _settings.StatusUpdateInterval, null, 0)
+            : base(0, () => Find.TickManager.TicksGame, _settings.StatusUpdateInterval, null, Find.TickManager.TicksGame)
         {
             _pawn = pawn;
             this.Update = CheckPawnStatus;
             _backingField = _lastCache = this.CheckPawnStatus();
         }
 
+        public static bool HasUpdateException { get; set; }
+
         public bool HasTendingHediff { get; private set; } = false;
 
         public bool HasInspiration { get; private set; } = false;
-
-        #region Overrides of CacheableTick<int>
-
-        public override bool ShouldUpdate(out int now)
-        {
-            now = this.Now();
-            return (_pawn.thingIDNumber + now) % _settings.StatusUpdateInterval == 0
-                                                    && this.LastUpdateTime != now;
-        }
-
-        #endregion
 
         #region Overrides of CacheableBase<int,int,int>
 
@@ -75,14 +66,23 @@ namespace BetterColonistBar
 
         private int CheckPawnStatus()
         {
-            _cacheUsed = false;
-            this.CheckInspiration();
-            this.CheckHealth();
-            this.CheckDraft();
-            this.CheckIdle();
-            this.CheckMentalState();
-            this.CheckFleeing();
-            this.CheckBurning();
+            try
+            {
+                _cacheUsed = false;
+                this.CheckInspiration();
+                this.CheckHealth();
+                this.CheckDraft();
+                this.CheckIdle();
+                this.CheckMentalState();
+                this.CheckFleeing();
+                this.CheckBurning();
+            }
+            catch
+            {
+                HasUpdateException = true;
+                throw;
+            }
+
             return _status;
         }
 

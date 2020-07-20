@@ -150,9 +150,7 @@
             xcopy /i /e /d /y "$(SolutionDir)ModItems\About" "$(OutDir)..\..\About"
             echo F|xcopy /d /y "$(SolutionDir)ModItems\LoadFolders.xml" "$(OutDir)..\..\LoadFolders.xml"
             echo F|xcopy /d /y "D:\Modding\RimWorldUtility\bin\Release\NotooShabby.RimWorldUtility.dll" "$(OutDir)..\..\Common\Assemblies\NotooShabby.RimWorldUtility.dll"
-powershell Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
 powershell "D:\Modding\BetterColonistBar\PrintVersion.ps1" -outdir $(OutDir) -outDll $(TargetFileName) -xml $(SolutionDir)ModItems\Languages\English\Keyed\BetterColonistBar.xml -solutionDir $(SolutionDir)
-powershell Set-ExecutionPolicy -ExecutionPolicy Restrict -Scope CurrentUser
 
 </PostBuildEvent>
   </PropertyGroup>

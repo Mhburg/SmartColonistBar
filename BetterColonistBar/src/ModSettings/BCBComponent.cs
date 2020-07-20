@@ -17,6 +17,8 @@ namespace BetterColonistBar
     {
         public static bool Expanded = true;
 
+        private bool _init;
+
         public BCBComponent(Game game)
         {
         }
@@ -28,6 +30,9 @@ namespace BetterColonistBar
             ColonistBarUitlity.Init();
             BCBManager.Reset();
             BetterColonistBarMod.Reset();
+
+            if (_init)
+                BCBManager.UpdateColonistBar();
         }
 
         public override void ExposeData()
@@ -41,20 +46,30 @@ namespace BetterColonistBar
             if (BetterColonistBarMod.HasException)
             { 
                 BCBManager.Harmony.UnpatchAll(BetterColonistBarMod.Id);
-                Find.WindowStack.Add(
-                    new Dialog_ErrorReporting(
-                        string.Concat(
-                            UIText.Version.TranslateSimple()
-                            , " -- "
-                            , UIText.Commit.TranslateSimple()
-                            , Environment.NewLine
-                            , BetterColonistBarMod.AssemblyName?.FullName ?? "Assembly not found"
-                            , Environment.NewLine
-                            , BetterColonistBarMod.Exception.ToString())));
+                Find.WindowStack.Add(new Dialog_ErrorReporting(BuildExceptionString()));
                 BetterColonistBarMod.HasException = false;
             }
+        }
 
-            BCBManager.UpdateCache();
+        private static string BuildExceptionString()
+        {
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append(UIText.Version.TranslateSimple());
+            stringBuilder.Append(" -- ");
+            stringBuilder.AppendLine(UIText.Commit.TranslateSimple());
+            stringBuilder.AppendLine(BetterColonistBarMod.AssemblyName?.FullName ?? "Assembly not found");
+            stringBuilder.AppendLine(BetterColonistBarMod.ExceptionReport.ExtraString);
+
+            foreach (Exception e in BetterColonistBarMod.ExceptionReport.Exceptions)
+            {
+                stringBuilder.AppendLine(e is AggregateException agg ? agg.Flatten().ToString() : e.ToString());
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine();
+            }
+
+            return stringBuilder.ToString();
         }
 
         #endregion

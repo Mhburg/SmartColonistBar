@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -13,7 +14,9 @@ using HarmonyLib;
 using RimWorld;
 using RimWorldUtility;
 using RimWorldUtility.Models;
+using RimWorldUtility.UI;
 using UnityEngine;
+using UnityEngine.Experimental.PlayerLoop;
 using Verse;
 
 namespace BetterColonistBar
@@ -51,12 +54,6 @@ namespace BetterColonistBar
             _bleedingCache = new PawnOrderBleedingCache();
         }
 
-        public static void UpdateCache()
-        {
-            UpdateCache(_breakLevelCaches);
-            UpdateCache(_statusCaches);
-        }
-
         public static void Reorder()
         {
             if (BetterColonistBarMod.ModSettings.SortBleedingPawn)
@@ -70,29 +67,62 @@ namespace BetterColonistBar
             Reorder();
 
             int result = 0;
-            EntriesCache.AsParallel().ForAll(
-                t =>
+
+            if (!BreakLevelCache.HasUpdateException && !PawnStatusCache.HasUpdateException)
+            {
+                try
                 {
-                    bool dirty = t.pawn != null && (_breakLevelCaches[t.pawn].Dirty | _statusCaches[t.pawn].Dirty);
-                    if (dirty)
-                        Interlocked.Exchange(ref result, 1);
-                });
+                    EntriesCache.AsParallel().ForAll(
+                        t =>
+                        {
+                            bool dirty = t.pawn != null && (_breakLevelCaches[t.pawn].Dirty | _statusCaches[t.pawn].Dirty);
+                            if (dirty)
+                                Interlocked.Exchange(ref result, 1);
+                        });
+                }
+                catch (Exception e)
+                {
+                    BetterColonistBarMod.ExceptionReport = new ExceptionReport(e);
+                }
+            }
+            else
+            {
+                try
+                {
+                    foreach (ColonistBar.Entry entry in EntriesCache)
+                    {
+                        if (entry.pawn == null)
+                            continue;
+
+                        _breakLevelCaches[entry.pawn].ForceUpdate();
+                        _statusCaches[entry.pawn].ForceUpdate();
+                    }
+
+                    result = 1;
+                    BreakLevelCache.HasUpdateException = PawnStatusCache.HasUpdateException = false;
+                }
+                catch (Exception e)
+                {
+                    BetterColonistBarMod.ExceptionReport.Exceptions.Add(e);
+                    BetterColonistBarMod.ExceptionReport.ExtraString = BuildReportString();
+                    BetterColonistBarMod.HasException = true;
+                }
+            }
 
             return result > 0;
-        }
 
-        private static void UpdateCache<TKey, TValue>(IDictionary<TKey, TValue> cacheTable)
-            where TValue : CacheableBase
-        {
-            foreach (var pair in cacheTable.ToList())
+            string BuildReportString()
             {
-                if (pair.Value.Validate())
-                    pair.Value.TriggerUpdate();
-                else
-                    cacheTable.Remove(pair.Key);
+                const string report = "Encounters errors when sequentially updates {0} after a failed parallel one.";
+                if (BreakLevelCache.HasUpdateException)
+                    return string.Format(CultureInfo.InvariantCulture, report, nameof(BreakLevelCache));
+                else if (PawnStatusCache.HasUpdateException)
+                    return string.Format(CultureInfo.InvariantCulture, report, nameof(PawnStatusCache));
+
+                return string.Empty;
             }
         }
-
+     
         public class PawnComparer : IEqualityComparer<Pawn>
         {
             public static PawnComparer Instance { get; } = new PawnComparer();

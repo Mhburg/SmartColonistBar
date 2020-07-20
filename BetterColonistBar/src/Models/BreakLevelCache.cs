@@ -25,7 +25,6 @@ namespace BetterColonistBar
 
         private bool _lastMood;
 
-
         public BreakLevelCache(Pawn pawn)
             : base(new BreakLevelModel(pawn), () => Find.TickManager.TicksGame, _settings.MoodUpdateInterval, null, 0)
         {
@@ -38,16 +37,7 @@ namespace BetterColonistBar
 
         #region Overrides of CacheableTick<BreakLevelModel>
 
-        public override bool ShouldUpdate(out int now)
-        {
-            now = this.Now();
-            bool result = (_pawn.thingIDNumber + now) % _settings.StatusUpdateInterval == 0
-                                                    && this.LastUpdateTime != now;
-            if (result)
-                return _backingField.UpdateBarTexture = result;
-
-            return false;
-        }
+        public static bool HasUpdateException { get; set; }
 
         public override bool Validate()
         {
@@ -83,22 +73,35 @@ namespace BetterColonistBar
             MentalBreaker breaker = pawn.mindState?.mentalBreaker;
             _cacheUsed = false;
 
-            if (breaker is null)
+            try
             {
-                _backingField.MoodLevel = MoodLevel.Undefined;
-                _backingField.CurInstanLevel = _backingField.Minor = _backingField.Major = _backingField.Extreme = 0;
-                return _backingField;
+                if (breaker is null)
+                {
+                    _backingField.MoodLevel = MoodLevel.Undefined;
+                    _backingField.CurInstanLevel =
+                        _backingField.Minor = _backingField.Major = _backingField.Extreme = 0;
+                    return _backingField;
+                }
+                else
+                {
+                    _backingField.Minor = breaker.BreakThresholdMinor;
+                    _backingField.Major = breaker.BreakThresholdMajor;
+                    _backingField.Extreme = breaker.BreakThresholdExtreme;
+                    _curMoodLock.EnterWriteLock();
+                    _backingField.CurInstanLevel = _backingField.Pawn.needs?.mood?.CurInstantLevel ?? 0;
+                    _curMoodLock.ExitWriteLock();
+                    _backingField.MoodLevel = this.GetMoodLevel(pawn);
+                    _backingField.UpdateBarTexture = true;
+                    return _backingField;
+                }
             }
-            else
+            catch
             {
-                _backingField.Minor = breaker.BreakThresholdMinor;
-                _backingField.Major = breaker.BreakThresholdMajor;
-                _backingField.Extreme = breaker.BreakThresholdExtreme;
-                _curMoodLock.EnterWriteLock();
-                _backingField.CurInstanLevel = _backingField.Pawn.needs?.mood?.CurInstantLevel ?? 0;
-                _curMoodLock.ExitWriteLock();
-                _backingField.MoodLevel = this.GetMoodLevel(pawn);
-                return _backingField;
+                HasUpdateException = true;
+                if (_curMoodLock.IsWriteLockHeld)
+                    _curMoodLock.ExitWriteLock();
+
+                throw;
             }
         }
 

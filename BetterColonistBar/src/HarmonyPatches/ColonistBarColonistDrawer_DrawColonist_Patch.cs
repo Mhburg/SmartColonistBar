@@ -161,7 +161,7 @@ namespace BetterColonistBar.HarmonyPatches
             {
                 Log.Warning(e.ToString());
                 BetterColonistBarMod.HasException = true;
-                BetterColonistBarMod.Exception = e;
+                BetterColonistBarMod.ExceptionReport = new ExceptionReport(e);
             }
         }
 

@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using RimWorld;
+using RimWorldUtility;
 using UnityEngine;
 using Verse;
 
@@ -120,7 +121,7 @@ namespace BetterColonistBar.HarmonyPatches
             {
                 Log.Warning(e.ToString());
                 BetterColonistBarMod.HasException = true;
-                BetterColonistBarMod.Exception = e;
+                BetterColonistBarMod.ExceptionReport = new ExceptionReport(e);
             }
 
             return true;
