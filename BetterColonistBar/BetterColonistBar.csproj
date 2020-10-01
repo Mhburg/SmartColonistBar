@@ -77,6 +77,8 @@
     <Compile Include="src\HarmonyPatches\ColonistBarColonistDrawer_DrawIcons_Patch.cs" />
     <Compile Include="src\HarmonyPatches\ColonistBarDrawLocsFinder_Patch.cs" />
     <Compile Include="src\HarmonyPatches\ColonistBarOnGUI_Patch.cs" />
+    <Compile Include="src\HarmonyPatches\ThoughtHandler_Patch.cs" />
+    <Compile Include="src\Utilities\ReflectionUtility.cs" />
     <None Include="src\HarmonyPatches\ColonistBar_Entries_Patch.cs" />
     <None Include="src\HarmonyPatches\InspirationHandler_TryStartInspiration_NewTemp_Patch.cs" />
     <Compile Include="src\HarmonyPatches\GenMapUI_Patch.cs" />

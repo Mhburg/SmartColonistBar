@@ -12,6 +12,7 @@ using RimWorldUtility;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using Random = System.Random;
 
 namespace BetterColonistBar
 {
@@ -24,6 +25,8 @@ namespace BetterColonistBar
         private static readonly ThreadLocal<List<Thought>> _moodOffsetThoughts = new ThreadLocal<List<Thought>>(() => new List<Thought>());
 
         private static readonly ThreadLocal<List<Thought>> _thoughts = new ThreadLocal<List<Thought>>(() => new List<Thought>());
+
+        private static readonly Random _rand = new Random();
 
         private readonly Pawn _pawn;
 
@@ -93,9 +96,9 @@ namespace BetterColonistBar
                     _backingField.Minor = breaker.BreakThresholdMinor;
                     _backingField.Major = breaker.BreakThresholdMajor;
                     _backingField.Extreme = breaker.BreakThresholdExtreme;
-                    _backingField.CurInstanLevel = CurInstantLevelThreadSafe();
+                    //_backingField.CurInstanLevel = CurInstantLevelThreadSafe();
                     //_curMoodLock.EnterWriteLock();
-                    //_backingField.CurInstanLevel = _backingField.Pawn.needs?.mood?.CurInstantLevel ?? 0;
+                    _backingField.CurInstanLevel = _backingField.Pawn.needs?.mood?.CurInstantLevel ?? 0;
                     //_curMoodLock.ExitWriteLock();
                     _backingField.MoodLevel = this.GetMoodLevel(pawn);
                     _backingField.UpdateBarTexture = true;
