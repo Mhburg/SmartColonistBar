@@ -46,7 +46,7 @@ namespace BetterColonistBar
             if (BetterColonistBarMod.HasException)
             { 
                 BCBManager.Harmony.UnpatchAll(BetterColonistBarMod.Id);
-                Find.WindowStack.Add(new Dialog_ErrorReporting(BuildExceptionString()));
+                Find.WindowStack.Add(new Dialog_ErrorReporting(BuildExceptionString(), "Exception", BetterColonistBarMod.BugReportUrl));
                 BetterColonistBarMod.HasException = false;
             }
         }

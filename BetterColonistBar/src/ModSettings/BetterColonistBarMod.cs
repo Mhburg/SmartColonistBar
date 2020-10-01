@@ -23,6 +23,8 @@ namespace BetterColonistBar
     {
         private static readonly Dictionary<Color, Texture2D> _textureCache = new Dictionary<Color, Texture2D>();
 
+        public const string BugReportUrl = "https://steamcommunity.com/workshop/filedetails/discussion/2162016781/4078523564596332172/";
+
         public const string Id = "NotooShabby.BetterColonistBar";
 
         public const string Name = "Smart Colonist Bar";
