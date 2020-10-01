@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RimWorld;
 using RimWorldUtility;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -18,6 +20,10 @@ namespace BetterColonistBar
         private static readonly BetterColonistBarSettings _settings = BetterColonistBarMod.ModSettings;
 
         private static readonly ReaderWriterLockSlim _curMoodLock = new ReaderWriterLockSlim();
+
+        private static readonly ThreadLocal<List<Thought>> _moodOffsetThoughts = new ThreadLocal<List<Thought>>(() => new List<Thought>());
+
+        private static readonly ThreadLocal<List<Thought>> _thoughts = new ThreadLocal<List<Thought>>(() => new List<Thought>());
 
         private readonly Pawn _pawn;
 
@@ -87,9 +93,10 @@ namespace BetterColonistBar
                     _backingField.Minor = breaker.BreakThresholdMinor;
                     _backingField.Major = breaker.BreakThresholdMajor;
                     _backingField.Extreme = breaker.BreakThresholdExtreme;
-                    _curMoodLock.EnterWriteLock();
-                    _backingField.CurInstanLevel = _backingField.Pawn.needs?.mood?.CurInstantLevel ?? 0;
-                    _curMoodLock.ExitWriteLock();
+                    _backingField.CurInstanLevel = CurInstantLevelThreadSafe();
+                    //_curMoodLock.EnterWriteLock();
+                    //_backingField.CurInstanLevel = _backingField.Pawn.needs?.mood?.CurInstantLevel ?? 0;
+                    //_curMoodLock.ExitWriteLock();
                     _backingField.MoodLevel = this.GetMoodLevel(pawn);
                     _backingField.UpdateBarTexture = true;
                     return _backingField;
@@ -118,5 +125,64 @@ namespace BetterColonistBar
             else
                 return MoodLevel.Extreme;
         }
+
+        /// <summary>
+        /// A rip-off from vanilla.
+        /// </summary>
+        /// <returns></returns>
+        private float CurInstantLevelThreadSafe()
+        {
+            float level = TotalMoodOffsetThreadSafe();
+            if (_backingField.Pawn.IsColonist || _backingField.Pawn.IsPrisonerOfColony)
+            {
+                level += Find.Storyteller.difficultyValues.colonistMoodOffset;
+            }
+
+            return Mathf.Clamp01(_backingField.Pawn.needs.mood.def.baseLevel + level / 100f);
+        }
+
+        /// <summary>
+        /// Thread-safe version for vanilla.
+        /// </summary>
+        /// <returns></returns>
+        private float TotalMoodOffsetThreadSafe()
+        {
+            List<Thought> curThoughts = _moodOffsetThoughts.Value;
+            ThoughtHandler handler = _backingField.Pawn.needs?.mood?.thoughts;
+            if (handler is null)
+                return 0f;
+
+            handler.GetDistinctMoodThoughtGroups(curThoughts);
+            return curThoughts.Sum(t => MoodOffsetOfGroup(t, handler));
+        }
+
+        /// <summary>
+        /// Thread-safe version for vanilla.
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="handler"></param>
+        /// <returns></returns>
+        private float MoodOffsetOfGroup(Thought group, ThoughtHandler handler)
+        {
+            List<Thought> tmpThoughts = _thoughts.Value;
+			handler.GetMoodThoughts(group, tmpThoughts);
+			if (!tmpThoughts.Any())
+				return 0f;
+
+			float totalMoodOffset = 0f;
+			float effectMultiplier = 1f;
+			float totalEffectMultiplier = 0f;
+
+			foreach (Thought thought in tmpThoughts)
+            {
+                totalMoodOffset += thought.MoodOffset();
+                totalEffectMultiplier += effectMultiplier;
+                effectMultiplier *= thought.def.stackedEffectMultiplier;
+            }
+
+			float num4 = totalMoodOffset / (float)tmpThoughts.Count;
+			tmpThoughts.Clear();
+			return num4 * totalEffectMultiplier;
+		}
     }
 }
