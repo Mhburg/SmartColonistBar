@@ -41,7 +41,6 @@ namespace BetterColonistBar.HarmonyPatches
                 transpiler: new HarmonyMethod(typeof(ThoughtHandler_Patch).GetMethod(nameof(TotalOpinionOffsetTranspiler), AccessTools.all)));
         }
 
-        [HarmonyDebug]
         public static IEnumerable<CodeInstruction> MoodOffSetGroupTranspiler(IEnumerable<CodeInstruction> code, ILGenerator ilGenerator)
         {
             return ReflectionUtility.ReplaceStaticFieldWithThreadLocal<List<Thought>>(
@@ -51,7 +50,6 @@ namespace BetterColonistBar.HarmonyPatches
                 , typeof(ThoughtHandler_Patch).GetField(nameof(_tmpThoughts), AccessTools.all));
         }
 
-        [HarmonyDebug]
         public static IEnumerable<CodeInstruction> TotalMoodOffsetTranspiler(IEnumerable<CodeInstruction> code, ILGenerator ilGenerator)
         {
             return ReflectionUtility.ReplaceStaticFieldWithThreadLocal<List<Thought>>(
@@ -61,7 +59,6 @@ namespace BetterColonistBar.HarmonyPatches
                 , typeof(ThoughtHandler_Patch).GetField(nameof(_tmpTotalMoodOffsetThoughts), AccessTools.all));
         }
 
-        [HarmonyDebug]
         public static IEnumerable<CodeInstruction> OpinionOffsetOfGroupTranspiler(IEnumerable<CodeInstruction> code, ILGenerator ilGenerator)
         {
             return ReflectionUtility.ReplaceStaticFieldWithThreadLocal<List<ISocialThought>>(
@@ -71,7 +68,6 @@ namespace BetterColonistBar.HarmonyPatches
                 , typeof(ThoughtHandler_Patch).GetField(nameof(_tmpSocialThoughts), AccessTools.all));
         }
 
-        [HarmonyDebug]
         public static IEnumerable<CodeInstruction> TotalOpinionOffsetTranspiler(IEnumerable<CodeInstruction> code, ILGenerator ilGenerator)
         {
             return ReflectionUtility.ReplaceStaticFieldWithThreadLocal<List<ISocialThought>>(
